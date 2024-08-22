@@ -25,24 +25,24 @@ class StaffDrawer(HasCairoContext):
     
     def draw_lines(self):
         for i in range(-2, 5-2):
-            self.ctx.move_to(self.layout.x, self.layout.y - i*config.STAFF_LINE_HEIGTH)
-            self.ctx.line_to(self.layout.x + self.layout.length, self.layout.y - i*config.STAFF_LINE_HEIGTH)
+            self.ctx.move_to(self.layout.x, self.layout.y - i*config.STAFF_LINE_HEIGHT)
+            self.ctx.line_to(self.layout.x + self.layout.length, self.layout.y - i*config.STAFF_LINE_HEIGHT)
             self.stroke(config.STAFF_LW)
             
     def draw_left_line(self):
         delta_x = config.STAFF_LW/2 # to have perfect corners
-        self.ctx.move_to(self.layout.x+delta_x, self.layout.y + 2*config.STAFF_LINE_HEIGTH)
-        self.ctx.line_to(self.layout.x+delta_x, self.layout.y - 2*config.STAFF_LINE_HEIGTH)
+        self.ctx.move_to(self.layout.x+delta_x, self.layout.y + 2*config.STAFF_LINE_HEIGHT)
+        self.ctx.line_to(self.layout.x+delta_x, self.layout.y - 2*config.STAFF_LINE_HEIGHT)
         self.stroke(config.STAFF_LW)
     
     def draw_clef(self):
         # Compute scale and position
         original_height = CLEF_ORIGINAL_HEIGHT
-        target_height = config.STAFF_LINE_HEIGTH * 7.
+        target_height = config.STAFF_LINE_HEIGHT * 7.
         offset = target_height * 1.65 / 7.
         scale = target_height / original_height
-        x = self.layout.x + config.STAFF_LINE_HEIGTH * config.NOTE_SPACE/8
-        y = self.layout.y - target_height + offset + 2*config.STAFF_LINE_HEIGTH
+        x = self.layout.x + config("NOTE_SPACE")/8
+        y = self.layout.y - target_height + offset + 2*config.STAFF_LINE_HEIGHT
         
         # Draw
         self.ctx.save()
@@ -82,8 +82,8 @@ class StaffDrawer(HasCairoContext):
     def draw_bar(self, x: int, lw_multiplier: float = 1.0):
         lw = config.STAFF_LW * lw_multiplier
         delta_x = lw/2 # to have a centered line
-        self.ctx.move_to(x - delta_x, self.layout.y + 2*config.STAFF_LINE_HEIGTH)
-        self.ctx.line_to(x - delta_x, self.layout.y - 2*config.STAFF_LINE_HEIGTH)
+        self.ctx.move_to(x - delta_x, self.layout.y + 2*config.STAFF_LINE_HEIGHT)
+        self.ctx.line_to(x - delta_x, self.layout.y - 2*config.STAFF_LINE_HEIGHT)
         self.stroke(lw)
     
     def place_bar(self, position: int, style: str = "|"):
@@ -102,7 +102,7 @@ class StaffDrawer(HasCairoContext):
             self.draw_bar(x + delta_x, lw_multiplier=1.0)
         
         if draw_dots:
-            delta_x = config.STAFF_LW * 4 + 2 * config.NOTE_DOT_RADIUS* config.STAFF_LINE_HEIGTH
+            delta_x = config.STAFF_LW * 4 + 2 * config("NOTE_DOT_RADIUS")
             y1 = self.layout.degree_to_y(5)
             y2 = self.layout.degree_to_y(7)
             self.noteDrawer.draw_dot(x + delta_x * delta_sign, y1)
@@ -112,9 +112,9 @@ class StaffDrawer(HasCairoContext):
         x = self.layout.position_to_x(position)
         y = self.layout.degree_to_y(degree)
         
-        x += config.STAFF_LINE_HEIGTH/2 * config.NOTE_ELLIPSE_BASE_WIDTH + config.DOT_X_OFFSET * config.STAFF_LINE_HEIGTH
+        x += config("NOTE_ELLIPSE_BASE_WIDTH") / 2 + config("DOT_X_OFFSET")
         if (2 <= degree <= 10) and (degree%2 == 0):
-            y += config.DOT_Y_OFFSET * config.STAFF_LINE_HEIGTH
+            y += config("DOT_Y_OFFSET")
         self.noteDrawer.draw_dot(x, y)
     
     def place_note(
@@ -152,7 +152,7 @@ class StaffDrawer(HasCairoContext):
             raise ValueError("Cannot place hyphen before first lyric")
         
         x = self.layout.position_to_x(position)
-        y = self.layout.degree_to_y(self.layout.min_degree) + config.STAFF_LINE_HEIGTH * config.LYRICS_SPACE
+        y = self.layout.degree_to_y(self.layout.min_degree) + config("LYRICS_SPACE")
         self.ctx.select_font_face(config.VOICE_FONT_FACE)
         self.ctx.set_font_size(config.VOICE_FONT_SIZE)
         

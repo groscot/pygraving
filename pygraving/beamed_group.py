@@ -21,14 +21,11 @@ class BeamedGroup(HasCairoContext):
     
     def compute_one_stem_endpoints(self, x0, y0):
         #TODO remove these constants
-        lw = config.STEM_LW
-        line_height = config.STAFF_LINE_HEIGTH
+        lw = config.STEM_LW        
         
-        x_diff = lw//2 if lw%2 == 0 else lw//2 + 1 
-        x = line_height/2 * config.NOTE_ELLIPSE_BASE_WIDTH - x_diff
-        
-        y_from = -self.direction * line_height * config.NOTE_STEM_Y_OFFSET
-        y_to   = -self.direction * line_height * config.STEM_LENGTH
+        x = config("NOTE_ELLIPSE_BASE_WIDTH") /2 - config.half(lw)
+        y_from = -self.direction * config("NOTE_STEM_Y_OFFSET")
+        y_to   = -self.direction * config("STEM_LENGTH")
         
         return (x0 + x*self.direction, y0 + y_from, y0 + y_to)
         
@@ -46,7 +43,7 @@ class BeamedGroup(HasCairoContext):
         tentative = np.linspace(y_start, y_end, len(self.notes), endpoint=True)
         tentative_lengths = np.abs(np.array([b[1] for b in baseline]) - tentative)
         
-        engraved_min_length = config.STAFF_LINE_HEIGTH * config.STEM_MIN_LENGTH
+        engraved_min_length = config("STEM_MIN_LENGTH")
         if np.min(tentative_lengths) >= engraved_min_length:
             self.y_start = y_start
             self.y_end = y_end
@@ -75,7 +72,7 @@ class BeamedGroup(HasCairoContext):
         self.ctx.fill()
         
     def draw_beam(self):
-        thickness = self.direction * config.STAFF_LINE_HEIGTH * config.BEAM_THICKNESS
+        thickness = self.direction * config("BEAM_THICKNESS")
         n = self._duration
         delta_y = 0
         for _ in range(n):

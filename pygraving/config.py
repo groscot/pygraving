@@ -3,7 +3,7 @@ from math import pi
 
 class Config:
     #* MAIN ABSOLUTE VALUES IN PIXELS
-    STAFF_LINE_HEIGTH = 20
+    STAFF_LINE_HEIGHT = 20
     STAFF_LW = 2
     STEM_LW = 3
     #i) The rest are multipliers
@@ -40,3 +40,15 @@ class Config:
     VOICE_FONT_FACE = "Times New Roman"
     LYRICS_SPACE = 1.5
     VOICE_FONT_SIZE = 24
+    
+    def __call__(self, param: str = "") -> float:
+        "Returns the absolute value of the parameter (multiplied by STAFF_LINE_HEIGHT)"
+        if param == "":
+            return self.STAFF_LINE_HEIGHT
+        return self.STAFF_LINE_HEIGHT * getattr(self, param)
+    
+    def half(self, value: int|float) -> int|float:
+        "Pixel-perfect half value"
+        if isinstance(value, float):
+            return value/2
+        return value//2 if value%2 == 0 else value//2 + 1 

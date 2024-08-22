@@ -43,15 +43,15 @@ def resolve_align(width: float, align: str) -> float:
 
 class NoteDrawer(HasCairoContext):
     def get_note_ellipse_size(self):
-        base_scale = config.STAFF_LINE_HEIGTH/2
-        return (config.NOTE_ELLIPSE_BASE_WIDTH * base_scale,
-                config.NOTE_ELLIPSE_BASE_HEIGHT * base_scale)
+        return (config("NOTE_ELLIPSE_BASE_WIDTH") /2,
+                config("NOTE_ELLIPSE_BASE_HEIGHT") /2)
     
     def draw_centered_ellipse(self, hole=True, angled=True):
         if angled:
             self.ctx.rotate(config.NOTE_ANGLE)
         
-        self.ctx.scale(*self.get_note_ellipse_size())
+        w, h = (config("NOTE_ELLIPSE_BASE_WIDTH") / 2, config("NOTE_ELLIPSE_BASE_HEIGHT") / 2)
+        self.ctx.scale(w, h)
         self.ctx.arc(0, 0, 1, 0, 2*pi)
         self.ctx.fill()
 
@@ -67,25 +67,21 @@ class NoteDrawer(HasCairoContext):
             self.ctx.set_operator(cairo.Operator.OVER)
     
     def draw_alteration(self, which="sharp", align: str = "r", x_offset: float = 0):
-        w, _ = self.get_note_ellipse_size()
-        s = config.STAFF_LINE_HEIGTH/ALTERATION_ORIGINAL_HEIGHT[which]
-        t_x = resolve_align(w*2 + x_offset, align)
-        print(t_x)
+        scale = config.STAFF_LINE_HEIGHT/ALTERATION_ORIGINAL_HEIGHT[which]
+        t_x = resolve_align(config("NOTE_ELLIPSE_BASE_WIDTH") + x_offset, align)
         self.ctx.save()
-        self.ctx.translate(t_x, ALTERATION_RELATIVE_VERTICAL_SHIFT[which]*s)
-        self.ctx.scale(s, s)
+        self.ctx.translate(t_x, ALTERATION_RELATIVE_VERTICAL_SHIFT[which]*scale)
+        self.ctx.scale(scale, scale)
         DRAW_ALTERATION[which](self.ctx)
         self.ctx.restore()
     
     def draw_stem(self, duration: int, up: bool = True):
         lw = config.STEM_LW
-        line_height = config.STAFF_LINE_HEIGTH
         
-        x_diff = lw//2 if lw%2 == 0 else lw//2 + 1 
-        x = line_height/2 * config.NOTE_ELLIPSE_BASE_WIDTH - x_diff
+        x = config("NOTE_ELLIPSE_BASE_WIDTH") /2 - config.half(lw)
         sign = 1 if up else -1
-        y_from = -sign * line_height * config.NOTE_STEM_Y_OFFSET
-        y_to   = -sign * line_height * config.STEM_LENGTH
+        y_from = -sign * config("NOTE_STEM_Y_OFFSET")
+        y_to   = -sign * config("STEM_LENGTH")
 
         self.ctx.move_to(x*sign, y_from)
         self.ctx.line_to(x*sign, y_to)
@@ -93,7 +89,7 @@ class NoteDrawer(HasCairoContext):
         
         if duration >= 3:
             original_height = CURL_ORIGINAL_HEIGHT
-            target_height = config.STAFF_LINE_HEIGTH * config.STEM_LENGTH
+            target_height = config("STEM_LENGTH")
             scale = target_height / original_height
             self.ctx.save()
             
@@ -104,7 +100,7 @@ class NoteDrawer(HasCairoContext):
             self.ctx.restore()
     
     def draw_dot(self, x: int, y: int):
-        radius = config.NOTE_DOT_RADIUS * config.STAFF_LINE_HEIGTH
+        radius = config("NOTE_DOT_RADIUS")
         self.ctx.arc(x, y, radius, 0, 2*pi)
         self.ctx.fill()
         
@@ -114,7 +110,7 @@ class NoteDrawer(HasCairoContext):
         self.ctx.save()
         self.ctx.translate(x, y)
         
-        alteration_x_offset = config.STAFF_LINE_HEIGTH/2
+        alteration_x_offset = config.STAFF_LINE_HEIGHT/2
         if duration >= 1 and not beamed:
             self.draw_stem(duration, up=up)
         if "#" in modifiers:

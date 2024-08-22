@@ -38,18 +38,18 @@ class StaffLayout():
         return degrees
     
     def note_helper_line_padding(self, include_note=True):
-        delta_x = config.STAFF_LINE_HEIGTH * config.NOTE_SPACE * config.NOTE_HELPER_LINE_PADDING_COEFF
+        delta_x = config("NOTE_SPACE") * config.NOTE_HELPER_LINE_PADDING_COEFF
         if include_note:
-            delta_x += config.STAFF_LINE_HEIGTH * 1/2
+            delta_x += config.STAFF_LINE_HEIGHT * 1/2
         return delta_x
     
     def position_to_x(self, position):
-        return self.x + config.STAFF_LINE_HEIGTH * config.NOTE_SPACE * (position + self.staff_origin_position_base)
+        return self.x + config("NOTE_SPACE") * (position + self.staff_origin_position_base)
     
     def degree_to_y(self, degree: int):
         # this one takes as base the lower C note
         base = -6
-        y = (base+degree)*config.STAFF_LINE_HEIGTH/2
+        y = (base+degree)*config.STAFF_LINE_HEIGHT/2
         return self.y - y
     
     def offset_origin_position_base(self, offset):
@@ -101,16 +101,16 @@ class StaffLayout():
     def autolayout_from_registered(self):
         max_position, max_position_type, min_degree, max_degree = self.calculate_min_max_registered()
         
-        # stem_length = config.STEM_LENGTH * config.STAFF_LINE_HEIGTH
+        # stem_length = config("STEM_LENGTH")
         min_y = self.degree_to_y(min_degree) + self.padding # + stem_length
         max_y = self.degree_to_y(max_degree) - self.padding # + stem_length
         height = int(min_y - max_y)
         
         self.x = self.padding
-        self.y = self.padding + (max_degree - 6)*config.STAFF_LINE_HEIGTH/2 #  + stem_length
+        self.y = self.padding + (max_degree - 6)*config.STAFF_LINE_HEIGHT/2 #  + stem_length
         
         if self.has_voice:
-            height += int(config.STAFF_LINE_HEIGTH * config.LYRICS_SPACE)
+            height += int(config("LYRICS_SPACE"))
         
         length = self.position_to_x(max_position)
         if max_position_type.startswith("bar"):

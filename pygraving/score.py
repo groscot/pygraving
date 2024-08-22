@@ -26,7 +26,7 @@ class Score:
         return scoreline
     
     def finalize(self):
-        staves_margin = config.STAVES_SPACE * config.STAFF_LINE_HEIGTH
+        staves_margin = config("STAVES_SPACE")
         sizes, surfaces = self.finish_frames()
         sizes = np.array(sizes) # shape: N, 2 (width, height)
         N = len(self.scorelines)
@@ -82,7 +82,7 @@ class Score:
     def get_image(self):
         #!DEPRECATED
         N = len(self.scorelines)
-        total_height = N*self.size[1] + (N-1)*config.STAVES_SPACE*config.STAFF_LINE_HEIGTH
+        total_height = N*self.size[1] + (N-1)*config("STAVES_SPACE")
         final_surface = ImageSurface(FORMAT_ARGB32, self.size[0], total_height)
         f_ctx = Context(final_surface)
 
@@ -94,7 +94,7 @@ class Score:
         for line in self.scorelines:
             f_ctx.set_source_surface(line.frame, x, y)
             f_ctx.paint()
-            y += self.size[1] + config.STAVES_SPACE*config.STAFF_LINE_HEIGTH
+            y += self.size[1] + config("STAVES_SPACE")
         
         output = BytesIO()
         final_surface.write_to_png(output)
