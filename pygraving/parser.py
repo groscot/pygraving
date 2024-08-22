@@ -50,12 +50,15 @@ _END = pyparsing.Keyword("END")
 
 stop_on = _BEGIN | _SET | _MOVE | _END
 
+bar = pyparsing.Literal("||:") | pyparsing.Literal(":||") | pyparsing.Literal("||") | \
+    pyparsing.Literal("|:") | pyparsing.Literal(":|") | pyparsing.Literal("|")
+
 commands = [
     _BEGIN("command") + pyparsing.Word(pyparsing.alphas)("object"),
     _SET("command") + param_with_numeric_value,
     _MOVE("command") + pyparsing.Or([python_float, python_int])("amount") + pyparsing.Word(pyparsing.alphas)("direction"),
     _END("command") + pyparsing.Word(pyparsing.alphas)("object"),
-    pyparsing.Literal("|")("bar"),
+    bar("bar"),
     chord("chord"),
     beam("beam"),
     note("note"),

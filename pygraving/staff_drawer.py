@@ -79,12 +79,34 @@ class StaffDrawer(HasCairoContext):
         self.noteDrawer.draw_alteration(which=type, align="r", x_offset=0)
         self.ctx.restore()
     
-    def place_bar(self, position: int):
-        delta_x = config.STAFF_LW/2 # to have a centered line
+    def draw_bar(self, x: int, lw_multiplier: float = 1.0):
+        lw = config.STAFF_LW * lw_multiplier
+        delta_x = lw/2 # to have a centered line
+        self.ctx.move_to(x - delta_x, self.layout.y + 2*config.STAFF_LINE_HEIGTH)
+        self.ctx.line_to(x - delta_x, self.layout.y - 2*config.STAFF_LINE_HEIGTH)
+        self.stroke(lw)
+    
+    def place_bar(self, position: int, style: str = "|"):
         x = self.layout.position_to_x(position)
-        self.ctx.move_to(x+delta_x, self.layout.y + 2*config.STAFF_LINE_HEIGTH)
-        self.ctx.line_to(x+delta_x, self.layout.y - 2*config.STAFF_LINE_HEIGTH)
-        self.stroke(config.STAFF_LW)
+        draw_dots = False
+        if ":" in style:
+            delta_sign = -1 if style[0] == ":" else 1
+            draw_dots = True
+            style = style.replace(":", "")
+        
+        if style == "|":
+            self.draw_bar(x, lw_multiplier=1.0)
+        elif style == "||":
+            delta_x = config.STAFF_LW * 2
+            self.draw_bar(x - delta_x, lw_multiplier=1.0)
+            self.draw_bar(x + delta_x, lw_multiplier=1.0)
+        
+        if draw_dots:
+            delta_x = config.STAFF_LW * 4 + 2 * config.NOTE_DOT_RADIUS* config.STAFF_LINE_HEIGTH
+            y1 = self.layout.degree_to_y(5)
+            y2 = self.layout.degree_to_y(7)
+            self.noteDrawer.draw_dot(x + delta_x * delta_sign, y1)
+            self.noteDrawer.draw_dot(x + delta_x * delta_sign, y2)
         
     def place_dot(self, position: int, degree: int):
         x = self.layout.position_to_x(position)
@@ -93,7 +115,6 @@ class StaffDrawer(HasCairoContext):
         x += config.STAFF_LINE_HEIGTH/2 * config.NOTE_ELLIPSE_BASE_WIDTH + config.DOT_X_OFFSET * config.STAFF_LINE_HEIGTH
         if (2 <= degree <= 10) and (degree%2 == 0):
             y += config.DOT_Y_OFFSET * config.STAFF_LINE_HEIGTH
-        print(x,y)
         self.noteDrawer.draw_dot(x, y)
     
     def place_note(

@@ -71,7 +71,7 @@ class StaffLayout():
         for what, args in self._registered:
             if what == "bar":
                 if args["position"] > max_position:
-                    max_position_type = what
+                    max_position_type = "bar_" + args["style"]
                 max_position = max(max_position, args["position"])
             elif what == "note":
                 up_sign = 1 if args.get("up", True) else -1
@@ -113,8 +113,12 @@ class StaffLayout():
             height += int(config.STAFF_LINE_HEIGTH * config.LYRICS_SPACE)
         
         length = self.position_to_x(max_position)
-        if max_position_type == "bar":
-            length -= self.padding - config.STAFF_LW
+        if max_position_type.startswith("bar"):
+            style = max_position_type.split("_")[1].replace(":", "")
+            if style == "|":
+                length -= self.padding
+            else:
+                length -= self.padding - config.STAFF_LW*2
         else:
             length += self.note_helper_line_padding(include_note=False)
         self.length = length

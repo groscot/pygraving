@@ -61,7 +61,7 @@ class StateMachine:
             self.process_command(token)
             return
         if "bar" in token:
-            self.active_scoreline.register("bar", position=self.last_position)
+            self.active_scoreline.register("bar", position=self.last_position, style=token["bar"])
             self.forward(1)
             return
         if "note" in token:
