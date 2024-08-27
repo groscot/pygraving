@@ -2,6 +2,8 @@ from .config import Config
 
 config = Config()
 
+NOTE_DEGREES = ["do", "re", "mi", "fa", "sol", "la", "si"]
+
 class Note:
     def __init__(
         self,
@@ -9,7 +11,7 @@ class Note:
         stem_length: float = config("STEM_LENGTH"),
         **kwargs
     ):
-        self.degree = degree
+        self.degree = Note.parse_degree(degree)
         self.duration = duration
         self.up = up
         self.beamed = beamed
@@ -18,6 +20,17 @@ class Note:
         self.is_opposite_x = is_opposite_x
         self._has_stem = True
         self.extras = {key: val for key, val in kwargs.items() if not hasattr(self, key)}
+
+    @classmethod
+    def parse_degree(cls, degree: int|str) -> int:
+        if isinstance(degree, str):
+            print("DE", degree)
+            # count number of "+" and "-" in the string
+            pluses = degree.count("+")
+            minuses = degree.count("-")
+            degree = degree.replace("+", "").replace("-", "")
+            return NOTE_DEGREES.index(degree) + (pluses - minuses)*7
+        return degree
 
     @property
     def has_stem(self):
@@ -68,7 +81,7 @@ class Note:
             else:
                 voice = voice[0]
             return dict(
-                degree=int(token["degree"]), voice=voice, hyphen_before=hyphen_before, modifiers=modifiers
+                degree=token["degree"], modifiers=modifiers, voice=voice, hyphen_before=hyphen_before
             )
     
     def compute_one_stem_endpoints(self, x0: float = 0.0, y0: float = 0.0):

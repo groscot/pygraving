@@ -91,6 +91,19 @@ class StaffLayout():
                 min_degree = min(min_degree, degree-1)
                 max_degree = max(max_degree, degree_corrected_with_stem)
                 min_degree = min(min_degree, degree_corrected_with_stem)
+            elif what == "chord":
+                for note_token in args["notes"]:
+                    note = Note.from_token(note_token)
+                    up_sign = 1 if args.get("up", True) else -1
+                    degree = note.degree
+                    degree_corrected_with_stem = degree + up_sign * (config.STEM_LENGTH*2)
+                    if args["position"] > max_position:
+                        max_position_type = what
+                    max_position = max(max_position, args["position"])
+                    max_degree = max(max_degree, degree+1)
+                    min_degree = min(min_degree, degree-1)
+                    max_degree = max(max_degree, degree_corrected_with_stem)
+                    min_degree = min(min_degree, degree_corrected_with_stem)
             elif what == "clef_alterations":
                 degrees = self.generate_alterations_degrees(args["type"], args["number"])
                 max_degree = max(self.max_degree, max(degrees)+2) #i) +2 because the # is quite high
