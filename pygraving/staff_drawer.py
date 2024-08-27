@@ -120,6 +120,10 @@ class StaffDrawer(HasCairoContext):
         if (2 <= degree <= 10) and (degree%2 == 0):
             y += config("DOT_Y_OFFSET")
         self.symbolDrawer.draw_dot(x, y)
+        
+    def place_silence(self, position: int, duration: int):
+        type = ["whole", "half", "quarter", "eighth", "sixt"][duration]
+        self.symbolDrawer.draw_silence(type, position=position)
     
     def place_note(
         self, position: int, note: Note

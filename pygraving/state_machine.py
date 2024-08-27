@@ -60,6 +60,10 @@ class StateMachine:
             self.active_scoreline.register("bar", position=self.last_position, style=token["bar"])
             self.forward(1)
             return
+        if "silence" in token:
+            self.active_scoreline.register("silence", position=self.last_position, duration=self.active_duration)
+            self.forward()
+            return
         if "note" in token:
             self.process_note(token)
             return

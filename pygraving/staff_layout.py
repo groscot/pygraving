@@ -57,7 +57,7 @@ class StaffLayout():
         self.staff_origin_position_base += offset
 
     def register(self, what, **args):
-        assert what in ["bar", "note", "chord", "beamed_group", "clef_alterations"]
+        assert what in ["bar", "silence", "note", "chord", "beamed_group", "clef_alterations"]
         if what == "beamed_group":
             for i, token in enumerate(args["notes"]):
                 note = Note.from_token(token | {"duration": args["duration"], "beamed": True, "up": args.get("up", True)})
@@ -78,6 +78,8 @@ class StaffLayout():
             if what == "bar":
                 if args["position"] > max_position:
                     max_position_type = "bar_" + args["style"]
+                max_position = max(max_position, args["position"])
+            if what == "silence":
                 max_position = max(max_position, args["position"])
             elif what == "note":
                 note = args["note"]

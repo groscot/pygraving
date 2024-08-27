@@ -46,6 +46,7 @@ chord = pyparsing.Group(
 beam = pyparsing.Group(
     pyparsing.Literal("[") + pyparsing.OneOrMore(note("note"))("notes") + pyparsing.Literal("]")
 )
+silence = pyparsing.Literal("_")
 
 _BEGIN = pyparsing.Keyword("BEGIN")
 _SET = pyparsing.Keyword("SET")
@@ -66,6 +67,7 @@ commands = [
     chord("chord"),
     beam("beam"),
     note("note"),
+    silence("silence"),
     pyparsing.Keyword("PLACE")("command") + pyparsing.Word(pyparsing.alphas)("object") + \
         pyparsing.OneOrMore(param_with_python_value, stopOn=stop_on)("arguments"),
 ]

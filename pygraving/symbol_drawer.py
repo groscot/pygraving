@@ -21,7 +21,7 @@ BASE_SYMBOLS = \
     [f"clef_{clef}" for clef in ["G", "F"]] + \
     [f"signature_digit_{i}" for i in range(10)] + \
     [f"signature_C"] + \
-    [f"silence_{type}" for type in ["whole", "half", "quarter", "eighth"]]
+    [f"silence_{type}" for type in ["whole", "half", "quarter", "eighth", "sixt"]]
 
 def resolve_align(width: float, align: str) -> float:
     if align == "c":

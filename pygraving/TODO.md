@@ -3,7 +3,7 @@
 ## features musicales
 
 - [x] symboles pour les silences: importer
-- [ ] symboles pour les silences: intégrer
+- [x] symboles pour les silences: intégrer
 - [-] gérer les time signatures différentes
 - [x] beamed group: refactorer pour vraiment utiliser l'api Notes (compatible avec alterations etc.)
 - [ ] liés (arcs en haut des notes) <- la syntaxe va pas être évidente, peut etre utiliser "PLACE slur"
@@ -24,6 +24,7 @@
 ## automatic layout
 
 - [ ] probleme de marge si: les notes extremes ont des alterations, ou si derniere note pointee, ou avec beamed group
+- [ ] probleme de marge si: chord do/re (1 d'écart) + silences
 - [ ] probablement vaut le coup de refactorer la logique (GROS TRUC)
 - [ ] contraindre spacing par le voice track
 
