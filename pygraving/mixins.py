@@ -2,7 +2,6 @@ from io import BytesIO
 
 from cairo import FORMAT_ARGB32, Context, ImageSurface
 
-
 class HasCairoContext:
     lw: int = 1
     
@@ -30,3 +29,15 @@ class HasCairoContext:
         output = BytesIO()
         final_surface.write_to_png(output)
         return output.getvalue()
+
+
+class HasParentCairoContext:
+    def __init__(self, parent):
+        self.parent = parent
+
+    @property
+    def ctx(self):
+        return self.parent.ctx
+
+    def stroke(self, lw=None):
+        self.parent.stroke(lw)

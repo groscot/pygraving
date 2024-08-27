@@ -12,7 +12,7 @@ import pyparsing
 # for each one, includes the casting function in the parse action
 #* place string last, because of the order of matching evaluation
 
-python_int = pyparsing.Word(pyparsing.nums)
+python_int = pyparsing.Combine(pyparsing.Optional("-") + pyparsing.Word(pyparsing.nums))
 python_float = pyparsing.Combine(pyparsing.Word(pyparsing.nums) + "." + pyparsing.Word(pyparsing.nums))
 python_bool = pyparsing.Keyword("True") | pyparsing.Keyword("False")
 python_list = pyparsing.Literal("[").suppress() + pyparsing.delimitedList(python_float | python_int | python_bool) + pyparsing.Literal("]").suppress()
@@ -37,10 +37,10 @@ note = pyparsing.Combine(
 )
 # chord = pyparsing.nestedExpr(content=note)
 chord = pyparsing.Group(
-    pyparsing.Literal("(") + pyparsing.OneOrMore(note)("notes") + pyparsing.Literal(")")
+    pyparsing.Literal("(") + pyparsing.OneOrMore(note("note"))("notes") + pyparsing.Literal(")")
 )
 beam = pyparsing.Group(
-    pyparsing.Literal("[") + pyparsing.OneOrMore(note)("notes") + pyparsing.Literal("]")
+    pyparsing.Literal("[") + pyparsing.OneOrMore(note("note"))("notes") + pyparsing.Literal("]")
 )
 
 _BEGIN = pyparsing.Keyword("BEGIN")

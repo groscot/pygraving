@@ -68,8 +68,9 @@ class Score:
 
             ctx.set_source_rgb(0, 0, 0)
             scoreline.ctx = ctx
-            scoreline.noteDrawer.ctx = ctx
-            scoreline.beamedGroupHandler.ctx = ctx
+            # scoreline.noteDrawer.ctx = ctx
+            # scoreline.beamedGroupHandler.ctx = ctx
+            # scoreline.symbolDrawer.ctx = ctx
             
             scoreline.place_registered()
             scoreline.draw_lines()

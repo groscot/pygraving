@@ -1,4 +1,5 @@
 from .config import Config
+from .note import Note
 
 config = Config()
 
@@ -57,8 +58,13 @@ class StaffLayout():
 
     def register(self, what, **args):
         assert what in ["bar", "note", "chord", "beamed_group", "clef_alterations"]
-        if "voice" in args:
-            self.has_voice = True
+        if what == "beamed_group":
+            for i, token in enumerate(args["notes"]):
+                note = Note.from_token(token | {"duration": args["duration"], "beamed": True, "up": args.get("up", True)})
+                self.register("note", note=note, position=args["position"] + i)
+        if what == "note":
+            if args["note"].extras.get("voice"):
+                self.has_voice = True
         self._registered.append((what, args))
         
     def calculate_min_max_registered(self):
@@ -74,8 +80,9 @@ class StaffLayout():
                     max_position_type = "bar_" + args["style"]
                 max_position = max(max_position, args["position"])
             elif what == "note":
+                note = args["note"]
                 up_sign = 1 if args.get("up", True) else -1
-                degree = args["degree"]
+                degree = note.degree
                 degree_corrected_with_stem = degree + up_sign * (config.STEM_LENGTH*2)
                 if args["position"] > max_position:
                     max_position_type = what
@@ -84,11 +91,6 @@ class StaffLayout():
                 min_degree = min(min_degree, degree-1)
                 max_degree = max(max_degree, degree_corrected_with_stem)
                 min_degree = min(min_degree, degree_corrected_with_stem)
-            elif what == "beamed_group":
-                degrees = args["degrees"]
-                max_position = max(max_position, max(args["positions"]))
-                max_degree = max(max_degree, max(degrees)+1)
-                min_degree = min(min_degree, min(degrees)-1)
             elif what == "clef_alterations":
                 degrees = self.generate_alterations_degrees(args["type"], args["number"])
                 max_degree = max(self.max_degree, max(degrees)+2) #i) +2 because the # is quite high
@@ -113,7 +115,7 @@ class StaffLayout():
             height += int(config("LYRICS_SPACE"))
         
         length = self.position_to_x(max_position)
-        if max_position_type.startswith("bar"):
+        if max_position_type and max_position_type.startswith("bar"):
             style = max_position_type.split("_")[1].replace(":", "")
             if style == "|":
                 length -= self.padding

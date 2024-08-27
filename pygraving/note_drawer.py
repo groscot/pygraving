@@ -6,7 +6,8 @@ import cairo
 
 from .config import Config
 from .load_svg import svg_path_to_ctx_fill
-from .mixins import HasCairoContext
+from .mixins import HasParentCairoContext
+from .note import Note
 
 config = Config()
 
@@ -41,23 +42,23 @@ def resolve_align(width: float, align: str) -> float:
     else:
         return -width
 
-class NoteDrawer(HasCairoContext):
-    def get_note_ellipse_size(self):
-        return (config("NOTE_ELLIPSE_BASE_WIDTH") /2,
-                config("NOTE_ELLIPSE_BASE_HEIGHT") /2)
-    
-    def draw_centered_ellipse(self, hole=True, angled=True):
-        if angled:
-            self.ctx.rotate(config.NOTE_ANGLE)
-        
+
+class NoteDrawer(HasParentCairoContext):
+    def draw_centered_ellipse(self, note: Note):
         w, h = (config("NOTE_ELLIPSE_BASE_WIDTH") / 2, config("NOTE_ELLIPSE_BASE_HEIGHT") / 2)
+        
+        if note.is_opposite_x:
+            self.ctx.translate(config("NOTE_ELLIPSE_BASE_WIDTH") - config.STEM_LW, 0)
+        if note.is_angled:
+            self.ctx.rotate(config.NOTE_ANGLE)
         self.ctx.scale(w, h)
+        
         self.ctx.arc(0, 0, 1, 0, 2*pi)
         self.ctx.fill()
 
-        if hole:
+        if note.has_hole:
             sx, sy = config.NOTE_HOLE_SCALE_X, config.NOTE_HOLE_SCALE_Y
-            if not angled:
+            if not note.is_angled:
                 self.ctx.rotate(config.NOTE_ANGLE/2)
                 sx, sy = sy, sx
             self.ctx.scale(sx, sy)
@@ -75,51 +76,59 @@ class NoteDrawer(HasCairoContext):
         DRAW_ALTERATION[which](self.ctx)
         self.ctx.restore()
     
-    def draw_stem(self, duration: int, up: bool = True):
-        lw = config.STEM_LW
-        
-        x = config("NOTE_ELLIPSE_BASE_WIDTH") /2 - config.half(lw)
-        sign = 1 if up else -1
-        y_from = -sign * config("NOTE_STEM_Y_OFFSET")
-        y_to   = -sign * config("STEM_LENGTH")
+    def draw_stem(self, note: Note):
+        x, y_from, y_to, sign = note.compute_one_stem_endpoints()
 
-        self.ctx.move_to(x*sign, y_from)
-        self.ctx.line_to(x*sign, y_to)
-        self.stroke(lw)
+        self.ctx.move_to(x, y_from)
+        self.ctx.line_to(x, y_to)
+        self.stroke(config.STEM_LW)
+        
+        if note.duration >= 3:
+            self.draw_curl_on_stem(x*sign, y_to, note)
+    
+    def draw_stem_for_chord(self, position: float, notes: list[Note], duration: int = 2, up: bool = True):
+        x0 = self.parent.layout.position_to_x(position)
+        stems = []
+        for note in notes:
+            x, y_from, y_to, sign = note.compute_one_stem_endpoints(x0=x0, y0=self.parent.layout.degree_to_y(note.degree))
+            stems.append((x, y_from, y_to, sign))
+            
+        # find extremal values for y
+        y_min = max([y_from for _, y_from, _, _ in stems])
+        y_max = min([y_to for _, _, y_to, _ in stems])
+        y_tip = y_max if up else y_min
+
+        self.ctx.move_to(x, y_max)
+        self.ctx.line_to(x, y_min)
+        self.stroke(config.STEM_LW)
         
         if duration >= 3:
-            original_height = CURL_ORIGINAL_HEIGHT
-            target_height = config("STEM_LENGTH")
-            scale = target_height / original_height
-            self.ctx.save()
-            
-            self.ctx.translate(x*sign, y_to)
-            flip_y = 1 if up else -1
-            self.ctx.scale(scale, scale*flip_y)
-            draw_curl(self.ctx)
-            self.ctx.restore()
+            self.draw_curl_on_stem(x*sign, y_tip, note)
     
-    def draw_dot(self, x: int, y: int):
-        radius = config("NOTE_DOT_RADIUS")
-        self.ctx.arc(x, y, radius, 0, 2*pi)
-        self.ctx.fill()
+    def draw_curl_on_stem(self, x: float, y: float, note: Note):
+        original_height = CURL_ORIGINAL_HEIGHT
+        target_height = note.stem_length
+        scale = target_height / original_height
+        self.ctx.save()
         
-    def draw_at(self, x: int, y: int, duration: int,
-                up: bool = True, beamed: bool = False,
-                modifiers=""):
+        self.ctx.translate(x, y)
+        flip_y = 1 if note.up else -1
+        self.ctx.scale(scale, scale*flip_y)
+        draw_curl(self.ctx)
+        self.ctx.restore()
+        
+    def draw_at(self, x: int, y: int, note: Note):
         self.ctx.save()
         self.ctx.translate(x, y)
         
         alteration_x_offset = config.STAFF_LINE_HEIGHT/2
-        if duration >= 1 and not beamed:
-            self.draw_stem(duration, up=up)
-        if "#" in modifiers:
-            self.draw_alteration("sharp", align="r", x_offset=alteration_x_offset)
-        elif "b" in modifiers:
-            self.draw_alteration("flat", align="r", x_offset=alteration_x_offset)
-        elif "n" in modifiers:
-            self.draw_alteration("natural", align="r", x_offset=alteration_x_offset)
-        self.draw_centered_ellipse(hole = duration < 2, angled = duration >= 1)
+        if note.has_stem:
+            self.draw_stem(note)
+        
+        alteration = note.get_alteration()
+        if alteration:
+            self.parent.symbolDrawer.draw_alteration(alteration, align="r", x_offset=alteration_x_offset)
+        
+        self.draw_centered_ellipse(note)
         
         self.ctx.restore()
-      

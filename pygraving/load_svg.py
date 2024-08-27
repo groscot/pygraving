@@ -66,3 +66,14 @@ def svg_path_to_ctx_fill(filepath: str, matrix=None) -> callable:
         ctx.fill()
     
     return draw
+
+def svg_content_to_ctx_fill(p: str, matrix=None) -> callable:
+    tokens = tokenize_path(p)
+    
+    def draw(ctx):
+        if matrix is not None:
+            ctx.set_matrix(cairo.Matrix(*matrix))
+        apply_tokens(tokens, ctx)
+        ctx.fill()
+    
+    return draw

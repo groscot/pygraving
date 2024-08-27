@@ -2,21 +2,23 @@
 
 ## features musicales
 
-- [ ] symboles pour les silences
-- [ ] gérer les time signatures différentes
+- [x] symboles pour les silences: importer
+- [ ] symboles pour les silences: intégrer
+- [-] gérer les time signatures différentes
+- [x] beamed group: refactorer pour vraiment utiliser l'api Notes (compatible avec alterations etc.)
 - [ ] liés (arcs en haut des notes) <- la syntaxe va pas être évidente, peut etre utiliser "PLACE slur"
-- [ ] répétitions blocs
+- [x] répétitions blocs
 - [ ] ajouter une logique de mesure
 
 
 ## cohérence générale
 
-- [-] arranger chord pour pouvoir donner des altérations aux notes
+- [x] arranger chord pour pouvoir donner des altérations aux notes
 - [ ] note pointee : la duree (pos auto) doit etre ajustee
 - [ ] note pointee : positionnement à revoir
 - [ ] lignes multiples : comment garantir que les mesures correspondent ?
-- [ ] corriger les traits verticaux : pas à gauche, et à droite sans depassement apres
-- [ ] chord: notes qui se superposent
+- [x] corriger les traits verticaux : pas à gauche, et à droite sans depassement apres
+- [x] chord: notes qui se superposent
 
 
 ## automatic layout

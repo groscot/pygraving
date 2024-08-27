@@ -1,5 +1,6 @@
 # from enum import Enum
 
+from .note import Note
 from .parser import parse_input
 from .score import Score
 
@@ -35,7 +36,7 @@ class StateMachine:
     
     @property
     def active_duration_in_spaces(self):
-        return 4/(2**self.active_duration)
+        return max(4/(2**self.active_duration), 1)
     
     def forward(self, amount: int = None):
         amount = amount or self.active_duration_in_spaces
@@ -48,11 +49,6 @@ class StateMachine:
     def run(self, parsed_tokens: list):
         for token in parsed_tokens:
             self.process_token(token)
-    
-    def write_note(self, degree: str, modifiers: str = ""):
-        self.active_scoreline.register(
-            "note", position=self.last_position, degree=int(degree), duration=self.active_duration, modifiers=modifiers
-        )
     
     def process_token(self, token):
         original_token = token
@@ -68,21 +64,16 @@ class StateMachine:
             self.process_note(token)
             return
         if "chord" in token:
-            # print([n for n in _token.chord.notes])
-            # for note in token["chord"]:
-            #     self.process_note(note)
-            # self.forward()
-            for degree in token["chord"]["notes"]:
-                self.write_note(degree=degree)
+            self.active_scoreline.register(
+                "chord", notes=token["chord"]["notes"], duration=self.active_duration, position=self.last_position,
+            )
             self.forward()
             return
         if "beam" in token:
-            N = len(token["beam"]["notes"])
-            positions = [self.last_position+i for i in range(N)]
             self.active_scoreline.register(
-                "beamed_group", positions=positions, degrees=[int(note) for note in token["beam"]["notes"]], duration=1
+                "beamed_group", notes=token["beam"]["notes"], duration=1, position=self.last_position,
             )
-            self.forward(N)
+            self.forward( len(token["beam"]["notes"]) )
             return
         
     def process_command(self, token):
@@ -121,22 +112,7 @@ class StateMachine:
             raise ValueError("Unknown command: " + token["command"])
         
     def process_note(self, token):
-        modifiers = ""
-        if "dotted" in token["note"]:
-            modifiers += "."
-        if "alteration" in token["note"]:
-            modifiers += token["note"]["alteration"]
-        if "voice" not in token["note"]:
-            self.write_note(degree=token["note"]["degree"], modifiers=modifiers)
-        else:
-            voice = token["note"]["voice"]
-            hyphen_before = "hyphen" in token["note"]
-            if hyphen_before:
-                voice = voice[1]
-            else:
-                voice = voice[0]
-            self.active_scoreline.register(
-                "note", position=self.last_position, degree=int(token["note"]["degree"]), duration=self.active_duration,
-                voice=voice, hyphen_before=hyphen_before
-            )
+        note = Note.from_token(token["note"])
+        note.duration = self.active_duration
+        self.active_scoreline.register("note", note=note, position=self.last_position)
         self.forward()

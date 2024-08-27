@@ -1,38 +1,35 @@
 import numpy as np
 
 from .config import Config
-from .mixins import HasCairoContext
+from .mixins import HasParentCairoContext
+from .note import Note
 
 config = Config()
 
 
-class BeamedGroup(HasCairoContext):    
-    def register_notes(self, notes: list[tuple], durations: list[int] | int, up: bool = True):
+class BeamedGroup(HasParentCairoContext):
+    def init(self, position: float, notes: list[Note], durations: list[int] | int, up: bool = True):
         if isinstance(durations, int):
             self._duration = durations
             durations = [durations]*len(notes)
         else:
             self._duration = 1
         
+        self.position = position
         self.direction = 1 if up else -1
         self.notes = notes
         self.durations = durations
         self.compute_stems_endpoints()
     
-    def compute_one_stem_endpoints(self, x0, y0):
-        #TODO remove these constants
-        lw = config.STEM_LW        
-        
-        x = config("NOTE_ELLIPSE_BASE_WIDTH") /2 - config.half(lw)
-        y_from = -self.direction * config("NOTE_STEM_Y_OFFSET")
-        y_to   = -self.direction * config("STEM_LENGTH")
-        
-        return (x0 + x*self.direction, y0 + y_from, y0 + y_to)
-        
     def compute_stems_endpoints(self):
         baseline = []
-        for x0, y0 in self.notes:
-            baseline.append(self.compute_one_stem_endpoints(x0, y0))
+        for i, _note in enumerate(self.notes):
+            params = Note.parse_note_token(_note)
+            note = Note(**params)
+            x0 = self.parent.layout.position_to_x(self.position + i)
+            y0 = self.parent.layout.degree_to_y(note.degree)
+            a,b,c,_ = note.compute_one_stem_endpoints(x0=x0, y0=y0)
+            baseline.append((a,b,c))
         self.x_start = baseline[0][0]
         self.x_end = baseline[-1][0]
         self.baseline = baseline
@@ -57,8 +54,10 @@ class BeamedGroup(HasCairoContext):
     def draw_stems(self):
         N = len(self.notes)
         ys = np.linspace(self.y_start, self.y_end, N, endpoint=True)
+        print(self.y_start, self.y_end)
         for i in range(N):
             x = self.baseline[i][0]
+            print(x, self.baseline[i][1], ys[i])
             self.ctx.move_to(x, self.baseline[i][1])
             self.ctx.line_to(x, ys[i])
             self.stroke(config.STEM_LW)

@@ -38,8 +38,8 @@ class Config:
     
     # Voice track
     VOICE_FONT_FACE = "Times New Roman"
-    LYRICS_SPACE = 1.5
-    VOICE_FONT_SIZE = 24
+    LYRICS_SPACE = 2.5
+    VOICE_FONT_SIZE = 36
     
     def __call__(self, param: str = "") -> float:
         "Returns the absolute value of the parameter (multiplied by STAFF_LINE_HEIGHT)"
