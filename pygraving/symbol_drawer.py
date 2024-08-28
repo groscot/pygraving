@@ -68,8 +68,13 @@ class SymbolDrawer(HasParentCairoContext):
         self.draw(which, x_offset=t_x)
     
     def draw_signature_digits(self, digit_1: int, digit_2: int):
-        self.draw(f"signature_digit_{digit_1}", position=0, degree=8)
-        self.draw(f"signature_digit_{digit_2}", position=0, degree=4)
+        #! giving position=0 doesn't work because the 0 position is changed
+        self.draw(f"signature_digit_{digit_1}", degree=8)
+        self.draw(f"signature_digit_{digit_2}", degree=4)
+        
+    def draw_signature_C(self):
+        #! giving position=0 doesn't work because the 0 position is changed
+        self.draw("signature_C", degree=6)
         
     def draw_silence(self, type: str, position: int, degree: int = 6):
         self.draw(f"silence_{type}", position=position, degree=degree)

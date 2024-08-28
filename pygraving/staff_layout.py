@@ -57,7 +57,7 @@ class StaffLayout():
         self.staff_origin_position_base += offset
 
     def register(self, what, **args):
-        assert what in ["bar", "silence", "note", "chord", "beamed_group", "clef_alterations"]
+        assert what in ["bar", "silence", "signature", "note", "chord", "beamed_group", "clef_alterations"]
         if what == "beamed_group":
             for i, token in enumerate(args["notes"]):
                 note = Note.from_token(token | {"duration": args["duration"], "beamed": True, "up": args.get("up", True)})
@@ -109,7 +109,9 @@ class StaffLayout():
             elif what == "clef_alterations":
                 degrees = self.generate_alterations_degrees(args["type"], args["number"])
                 max_degree = max(self.max_degree, max(degrees)+2) #i) +2 because the # is quite high
-                max_position_offset = args["number"] * config.CLEF_ALTERATIONS_SPACE
+                max_position_offset += args["number"] * config.CLEF_ALTERATIONS_SPACE
+            elif what == "signature":
+                max_position_offset += config.SIGNATURE_SPACE
         self.min_degree = min_degree
         self.max_degree = max_degree
         max_position = max_position + max_position_offset

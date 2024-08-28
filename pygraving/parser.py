@@ -48,6 +48,9 @@ beam = pyparsing.Group(
 )
 silence = pyparsing.Literal("_")
 
+signature_arg = pyparsing.Group(pyparsing.Word(pyparsing.nums)("digit_1") + pyparsing.Word(pyparsing.nums)("digit_2")) | pyparsing.Keyword("C")
+signature = pyparsing.Keyword("SIGNATURE")("command") + signature_arg("value")
+
 _BEGIN = pyparsing.Keyword("BEGIN")
 _SET = pyparsing.Keyword("SET")
 _MOVE = pyparsing.Keyword("MOVE")
@@ -68,6 +71,7 @@ commands = [
     beam("beam"),
     note("note"),
     silence("silence"),
+    signature("signature"),
     pyparsing.Keyword("PLACE")("command") + pyparsing.Word(pyparsing.alphas)("object") + \
         pyparsing.OneOrMore(param_with_python_value, stopOn=stop_on)("arguments"),
 ]

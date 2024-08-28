@@ -12,6 +12,7 @@ class Config:
     STAVES_SPACE = 1.5
     STAFF_ORIGIN_POSITION_BASE = 1.3
     CLEF_ALTERATIONS_SPACE = 0.33
+    SIGNATURE_SPACE = 0.75
     
     # Notes
     NOTE_SPACE = 3.5

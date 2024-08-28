@@ -121,6 +121,17 @@ class StaffDrawer(HasCairoContext):
             y += config("DOT_Y_OFFSET")
         self.symbolDrawer.draw_dot(x, y)
         
+    def place_signature(self, digit_1: int = 1, digit_2: int = 1, is_C: bool = False):
+        #i) need to give the position here because the 0 position is changed
+        x = self.layout.position_to_x(-config.SIGNATURE_SPACE/3)
+        self.ctx.translate(x, 0)
+        if is_C:
+            self.symbolDrawer.draw_signature_C()
+        else:
+            self.symbolDrawer.draw_signature_digits(digit_1, digit_2)
+        self.ctx.translate(-x, 0)
+        self.layout.offset_origin_position_base(config.SIGNATURE_SPACE)
+        
     def place_silence(self, position: int, duration: int):
         type = ["whole", "half", "quarter", "eighth", "sixt"][duration]
         self.symbolDrawer.draw_silence(type, position=position)

@@ -4,10 +4,10 @@
 
 - [x] symboles pour les silences: importer
 - [x] symboles pour les silences: intégrer
-- [-] gérer les time signatures différentes
+- [x] gérer les time signatures différentes
 - [x] beamed group: refactorer pour vraiment utiliser l'api Notes (compatible avec alterations etc.)
-- [ ] liés (arcs en haut des notes) <- la syntaxe va pas être évidente, peut etre utiliser "PLACE slur"
 - [x] répétitions blocs
+- [ ] liés (arcs en haut des notes) <- la syntaxe va pas être évidente, peut etre utiliser "PLACE slur"
 - [ ] ajouter une logique de mesure
 
 

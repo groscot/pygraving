@@ -100,6 +100,12 @@ class StateMachine:
         elif token["command"] == "MOVE":
             sign = -1 if token["direction"].lower() == "back" else 1
             self.forward(sign * token["amount"])
+        elif token["command"] == "SIGNATURE":
+            value = token["value"]
+            if "C" in value:
+                self.active_scoreline.register("signature", is_C=True)
+            else:
+                self.active_scoreline.register("signature", **value[0])
         elif token["command"] == "PLACE":
             what = token["object"]
             args = unstack_arguments(token["arguments"])
