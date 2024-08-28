@@ -1,0 +1,41 @@
+<html>
+<head>
+<title>Score Maker</title>
+<script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+</head>
+<body class="p-4">
+    <article class="prose lg:prose-xl">
+        <h1>Score Maker</h1>
+    </article>
+    <div class="text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
+        <ul class="flex flex-wrap -mb-px">
+            <li class="me-2">
+                <a href="/" class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">Accueil</a>
+            </li>
+            <li class="me-2">
+                <a href="/help" class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">Aide</a>
+            </li>
+            <li class="me-2">
+                <a href="/examples" class="inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-500 dark:border-blue-500" aria-current="page">Exemples</a>
+            </li>
+            <li>
+                <a class="inline-block p-4 text-gray-400 rounded-t-lg cursor-not-allowed dark:text-gray-500">Configuration (à venir)</a>
+            </li>
+        </ul>
+    </div>
+    <article class="prose lg:prose-xl mt-4">
+        <h2>Exemples</h2>
+    </article>
+    <div class="lg:grid grid-cols-2 mt-4 gap-4">
+        {% for example in examples %}
+        <div class="relative">
+            <pre class="bg-gray-100 text-gray-800 p-2 mb-8 w-full" style="font-size: 80%;">{{ example.value }}</pre>
+            <a class="underline inline-block absolute right-0 bottom-0" href="/?load={{ example.name }}">Ouvrir dans l'éditeur</a>
+        </div>
+        <div class="border p-4 shadow">
+            <img class="preview" src="data:image/png;base64, {{ example.base64_img }}" alt="" class="max-w-full">
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

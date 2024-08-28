@@ -1,0 +1,13 @@
+/* Les notes sont soit désignées par leur numéro */
+
+BEGIN line
+SET duration 3 /* 0 = ronde, 1 = blanche, 2 = noire, etc. */
+-3 -2 -1 0 | 1 2 3 4 | 5 6 7 8 | 9 10 11 12 :|
+
+
+/* Soit par leur nom en minuscule
+(mettre - ou + pour descendre ou monter de la gamme de référence) */
+
+BEGIN line
+SET duration 2
+fa- sol- la- si- | do re mi fa | sol la si do+ | re+ mi+ fa+ sol+ :|

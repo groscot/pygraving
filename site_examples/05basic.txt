@@ -1,0 +1,21 @@
+/* Ceci est un commentaire */
+
+BEGIN line
+SET clef_sharp 1
+
+SET duration 2
+0 2 n3 4 | 12. [12 7 10] [6 7] |
+
+BEGIN line
+
+/* On crée un vide qui correspond à la taille du # à la clé de la 1ere ligne */
+MOVE 0.33333 forward
+
+SET duration 2
+0 2 4 7 | 7 4 2 0 |
+
+SET duration 1
+(0 2 4) (4 6 8) |
+
+SET duration 0
+(0 2 4 7) |

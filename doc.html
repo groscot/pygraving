@@ -1,0 +1,117 @@
+<html>
+<head>
+<title>Score Maker</title>
+<script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+<style>
+code::before {
+    content: normal!important;
+}
+code::after {
+    content: normal!important;
+}
+code {
+    background-color: #e5e7eb;
+    border-radius: 0.25rem;
+    padding: 0.1em 0.25em;
+}
+</style>
+</head>
+<body class="p-4">
+    <article class="prose lg:prose-xl">
+        <h1>Score Maker</h1>
+    </article>
+    <div class="text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
+        <ul class="flex flex-wrap -mb-px">
+            <li class="me-2">
+                <a href="/" class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">Accueil</a>
+            </li>
+            <li class="me-2">
+                <a href="/help" class="inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-500 dark:border-blue-500" aria-current="page">Aide</a>
+            </li>
+            <li class="me-2">
+                <a href="/examples" class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">Exemples</a>
+            </li>
+            <li>
+                <a class="inline-block p-4 text-gray-400 rounded-t-lg cursor-not-allowed dark:text-gray-500">Configuration (à venir)</a>
+            </li>
+        </ul>
+    </div>
+    <div class="my-2 p-2 bg-blue-100 text-blue-800">
+        <b>Information</b> : la page Exemples met en avant des exemples de commandes à essayer. Vous pourrez les importer dans l'éditeur en un clic pour les tester.
+    </div>
+    <article class="prose lg:prose-xl mt-4">
+        <h2>Réglages de la portée</h2>
+        <ul>
+            <li>
+                <code>BEGIN line</code> pour démarrer une portée / créer une nouvelle ligne
+            </li><li>
+                <code>SET clef_sharp N</code> pour indiquer qu'il y a N (1, 2, 3 etc.) dièses à la clef
+            </li><li>
+                <code>SET clef_flat N</code> pour indiquer qu'il y a N (1, 2, 3 etc.) bémols à la clef
+            </li><li>
+                <code>SIGNATURE A B</code> et <code>SIGNATURE C</code> : pour indiquer le rythme (exemple 4 4, 3 4, etc)
+            </li>
+        </ul>
+        <h2>Ajouter des notes</h2>
+        <p>La logique est la suivante : on indique le nom/numéro de la note ainsi que des options. Exemples :</p>
+        <ul>
+            <li>
+                <code>do</code> pour le do de base, équivalent à <code>1</code>
+            </li><li>
+                <code>re</code> pour le ré, équivalent à <code>2</code>
+            </li><li>
+                <code>do+</code> pour le prochain octave, équivalent à <code>8</code>
+            </li>
+        </ul>
+        <p>
+        Concernant le type de note qui est utilisé (blanche, noire, croche etc.), il se change
+        avec l'instruction <code>SET duration N</code>, avec N=0 pour une ronde, 1 pour une blanche, 2 pour une noire, etc.</p>
+        </p>
+        <h4>Altérations</h4>
+        <p>Elles se placent avant la note :</p>
+        <ul>
+            <li>
+                <code>#</code> dièse
+            </li><li>
+                <code>b</code> bémol
+            </li><li>
+                <code>n</code> bécart (n comme naturel)
+            </li>
+        </ul>
+        <h4>Options</h4>
+        <p>À placer après la note :</p>
+        <ul>
+            <li>
+                <code>!</code> pour que la tige regarde vers le bas
+            </li><li>
+                <code>.</code> pour une note pointée
+            </li>
+        </ul>
+        <h4>Piste de voix</h4>
+        <p>Après les options, on peut faire correspondre la note avec des paroles en les indiquant [entre crochets], par exemple :</p>
+        <ul>
+            <li>
+                <code>do[bon] re[-jour]</code> Va écrire Bon jour sous les notes avec le tiret placé bien au milieu
+            </li>
+        </ul>
+        <h2>Accords et triolets</h2>
+        <p>On indique un accord en groupant les notes entre parenthèses, et on lie des croches grâce à des crochets</p>
+        <ul>
+            <li>
+                <code>(do mi sol)</code> pour l'accord de Do majeur
+            </li><li>
+                <code>[re mi] [mi fa] [re fa]</code> pour trois groupes de deux croches connectées
+            </li>
+        </ul>
+        <p>Les accords et les groupes peuvent pointer vers le bas en mettant un <code>!</code> après les parenthèses/crochets.</p>
+        <h2>Commandes avancées</h2>
+        <ul>
+            <li>
+                <code>MOVE X forward</code> ou <code>MOVE X back</code> pour rajouter de l'espace (ou revenir en arrière, utile
+                par exemple pour séparer plusieurs voix). <code>X</code> est la taille de l'espace ; X=<code>1</code> correspond à l'espace après une noire ; 
+                X=<code>0.33</code> correspond à la taille prise par un # ou bémol à la clé
+            </li>
+        </ul>
+    </article>
+</body>
+</html>

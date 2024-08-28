@@ -8,9 +8,9 @@ With pyparsing==2.4.7, the methods and attributes should be in camelCase, NOT IN
 
 import pyparsing
 
-string_name_note = pyparsing.Combine((pyparsing.Keyword("do") | pyparsing.Keyword("re") | pyparsing.Keyword("mi") | \
-    pyparsing.Keyword("fa") | pyparsing.Keyword("sol") | pyparsing.Keyword("la") | \
-        pyparsing.Keyword("si")) + pyparsing.Optional(pyparsing.OneOrMore("+")) + pyparsing.Optional(pyparsing.OneOrMore("-")))
+string_name_note = pyparsing.Combine((pyparsing.Literal("do") | pyparsing.Literal("re") | pyparsing.Literal("mi") | \
+    pyparsing.Literal("fa") | pyparsing.Literal("sol") | pyparsing.Literal("la") | \
+        pyparsing.Literal("si")) + pyparsing.Optional(pyparsing.OneOrMore("+")) + pyparsing.Optional(pyparsing.OneOrMore("-")))
 
 # Argument parsable into a python string, int, float or bool
 # for each one, includes the casting function in the parse action
@@ -28,7 +28,16 @@ python_float.setParseAction(pyparsing.tokenMap(float))
 
 python_arg = python_float | python_int | python_bool | python_list | python_string
 
-# Grammar definition
+
+#---
+
+#i) Simple way to allow the parser to start C from 1 instead of 0
+#i) without changing the internal representations
+degree_int = pyparsing.Combine(pyparsing.Optional("-") + pyparsing.Word(pyparsing.nums))
+degree_int.setParseAction(lambda t: int(t[0])-1)
+
+#---
+
 
 param_with_numeric_value = pyparsing.Word(pyparsing.alphas + "_")("param") + python_int("value")
 param_with_python_value = pyparsing.Word(pyparsing.alphas + "_")("param") + python_arg("value")
@@ -40,8 +49,14 @@ voice_track = pyparsing.Optional(
 flipped = pyparsing.Optional("!")("flipped")
 
 note = pyparsing.Combine(
-    pyparsing.Optional("#")("alteration") + pyparsing.Optional("b")("alteration") + pyparsing.Optional("n")("alteration") + (python_int("degree") | string_name_note("degree")) + pyparsing.Optional(".")("dotted") + flipped + voice_track("voice")
+    pyparsing.Optional("#")("alteration") + pyparsing.Optional("b")("alteration") + pyparsing.Optional("n")("alteration") + (degree_int("degree") | string_name_note("degree")) + pyparsing.Optional(".")("dotted") + flipped + voice_track("voice")
 )
+
+alteration = pyparsing.Optional(pyparsing.Or(["#", "b", "n"]))
+note = pyparsing.Combine(
+    alteration("alteration") + (degree_int("degree") | string_name_note("degree")) + pyparsing.Optional(".")("dotted") + flipped + voice_track("voice")
+)
+
 # chord = pyparsing.nestedExpr(content=note)
 chord = pyparsing.Group(
     pyparsing.Literal("(") + pyparsing.OneOrMore(note("note"))("notes") + pyparsing.Literal(")") + flipped
