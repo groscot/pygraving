@@ -36,15 +36,18 @@ param_with_python_value = pyparsing.Word(pyparsing.alphas + "_")("param") + pyth
 voice_track = pyparsing.Optional(
     pyparsing.Literal("[").suppress() + pyparsing.Optional("-")("hyphen") + pyparsing.Word(pyparsing.pyparsing_unicode.Latin1.alphas) + pyparsing.Literal("]").suppress()
 )
+
+flipped = pyparsing.Optional("!")("flipped")
+
 note = pyparsing.Combine(
-    pyparsing.Optional("#")("alteration") + pyparsing.Optional("b")("alteration") + pyparsing.Optional("n")("alteration") + (python_int("degree") | string_name_note("degree")) + pyparsing.Optional(".")("dotted") + voice_track("voice")
+    pyparsing.Optional("#")("alteration") + pyparsing.Optional("b")("alteration") + pyparsing.Optional("n")("alteration") + (python_int("degree") | string_name_note("degree")) + pyparsing.Optional(".")("dotted") + flipped + voice_track("voice")
 )
 # chord = pyparsing.nestedExpr(content=note)
 chord = pyparsing.Group(
-    pyparsing.Literal("(") + pyparsing.OneOrMore(note("note"))("notes") + pyparsing.Literal(")")
+    pyparsing.Literal("(") + pyparsing.OneOrMore(note("note"))("notes") + pyparsing.Literal(")") + flipped
 )
 beam = pyparsing.Group(
-    pyparsing.Literal("[") + pyparsing.OneOrMore(note("note"))("notes") + pyparsing.Literal("]")
+    pyparsing.Literal("[") + pyparsing.OneOrMore(note("note"))("notes") + pyparsing.Literal("]") + flipped
 )
 silence = pyparsing.Literal("_")
 

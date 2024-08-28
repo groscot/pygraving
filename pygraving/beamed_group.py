@@ -26,6 +26,8 @@ class BeamedGroup(HasParentCairoContext):
         for i, _note in enumerate(self.notes):
             params = Note.parse_note_token(_note)
             note = Note(**params)
+            if self.direction == -1:
+                note.modifiers += "!"
             x0 = self.parent.layout.position_to_x(self.position + i)
             y0 = self.parent.layout.degree_to_y(note.degree)
             a,b,c,_ = note.compute_one_stem_endpoints(x0=x0, y0=y0)

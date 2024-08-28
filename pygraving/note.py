@@ -7,13 +7,12 @@ NOTE_DEGREES = ["do", "re", "mi", "fa", "sol", "la", "si"]
 class Note:
     def __init__(
         self,
-        degree: int, duration: int = 2, up: bool = True, beamed: bool = False, modifiers: str = "", is_opposite_x: bool = False,
+        degree: int, duration: int = 2, beamed: bool = False, modifiers: str = "", is_opposite_x: bool = False,
         stem_length: float = config("STEM_LENGTH"),
         **kwargs
     ):
         self.degree = Note.parse_degree(degree)
         self.duration = duration
-        self.up = up
         self.beamed = beamed
         self.modifiers = modifiers
         self.stem_length = stem_length
@@ -50,6 +49,10 @@ class Note:
     def is_dotted(self):
         return "." in self.modifiers
 
+    @property
+    def up(self):
+        return "!" not in self.modifiers
+
     def get_alteration(self):
         if "#" in self.modifiers:
             return "sharp"
@@ -68,6 +71,8 @@ class Note:
         modifiers = ""
         if "dotted" in token:
             modifiers += "."
+        if "flipped" in token:
+            modifiers += "!"
         if "alteration" in token:
             modifiers += token["alteration"]
         

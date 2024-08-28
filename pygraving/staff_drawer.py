@@ -200,7 +200,9 @@ class StaffDrawer(HasCairoContext):
         
         for _note in notes:
             params = Note.parse_note_token(_note)
-            note = Note(**params | {"duration": duration, "up": up})
+            note = Note(**params | {"duration": duration})
+            if not up:
+                note.modifiers += "!"
             note._has_stem = False
             degrees.append(note.degree)
             note_objects.append(note)

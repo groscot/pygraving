@@ -92,18 +92,22 @@ class NoteDrawer(HasParentCairoContext):
         for note in notes:
             x, y_from, y_to, sign = note.compute_one_stem_endpoints(x0=x0, y0=self.parent.layout.degree_to_y(note.degree))
             stems.append((x, y_from, y_to, sign))
-            
+        
         # find extremal values for y
-        y_min = max([y_from for _, y_from, _, _ in stems])
-        y_max = min([y_to for _, _, y_to, _ in stems])
-        y_tip = y_max if up else y_min
+        if up:
+            y_min = max([y_from for _, y_from, _, _ in stems])
+            y_max = min([y_to for _, _, y_to, _ in stems])
+        else:
+            y_min = min([y_from for _, y_from, _, _ in stems])
+            y_max = max([y_to for _, _, y_to, _ in stems])
+        y_tip = y_max
 
         self.ctx.move_to(x, y_max)
         self.ctx.line_to(x, y_min)
         self.stroke(config.STEM_LW)
         
         if duration >= 3:
-            self.draw_curl_on_stem(x*sign, y_tip, note)
+            self.draw_curl_on_stem(x, y_tip, note)
     
     def draw_curl_on_stem(self, x: float, y: float, note: Note):
         original_height = CURL_ORIGINAL_HEIGHT

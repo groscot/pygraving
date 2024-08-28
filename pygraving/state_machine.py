@@ -69,13 +69,13 @@ class StateMachine:
             return
         if "chord" in token:
             self.active_scoreline.register(
-                "chord", notes=token["chord"]["notes"], duration=self.active_duration, position=self.last_position,
+                "chord", notes=token["chord"]["notes"], duration=self.active_duration, position=self.last_position, up="flipped" not in token["chord"],
             )
             self.forward()
             return
         if "beam" in token:
             self.active_scoreline.register(
-                "beamed_group", notes=token["beam"]["notes"], duration=1, position=self.last_position,
+                "beamed_group", notes=token["beam"]["notes"], duration=1, position=self.last_position, up="flipped" not in token["beam"],
             )
             self.forward( len(token["beam"]["notes"]) )
             return
