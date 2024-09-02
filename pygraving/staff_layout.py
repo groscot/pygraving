@@ -14,7 +14,7 @@ class StaffLayout():
     
     #---
     
-    has_voice: bool = False
+    has_voice_tracks: int = 0
     min_degree = 0 -1 # bottom C
     max_degree = 12 +1 # top A
     
@@ -68,8 +68,9 @@ class StaffLayout():
                     note.modifiers += "!"
                 self.register("note", note=note, position=args["position"] + i)
         if what == "note":
+            # print(args["note"].extras)
             if args["note"].extras.get("voice"):
-                self.has_voice = True
+                self.has_voice_tracks = max(self.has_voice_tracks, len(args["note"].extras.get("voice")))
         self._registered.append((what, args))
         
     def calculate_min_max_registered(self):
@@ -133,8 +134,8 @@ class StaffLayout():
         self.x = self.padding
         self.y = self.padding + (max_degree - 6)*config.STAFF_LINE_HEIGHT/2 #  + stem_length
         
-        if self.has_voice:
-            height += int(config("LYRICS_SPACE"))
+        if self.has_voice_tracks:
+            height += self.has_voice_tracks * int(config("LYRICS_SPACE"))
         
         length = self.position_to_x(max_position)
         if max_position_type and max_position_type.startswith("bar"):

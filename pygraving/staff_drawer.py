@@ -18,7 +18,7 @@ draw_clef = svg_path_to_ctx_fill( current_path / "shapes/clef_G.txt" )
 CLEF_ORIGINAL_HEIGHT = 1000
 
 class StaffDrawer(HasCairoContext):
-    _last_lyric_data = None
+    _last_lyric_data = {0: None}
     
     def init(self):
         self.layout = StaffLayout()
@@ -159,9 +159,12 @@ class StaffDrawer(HasCairoContext):
         if note.degree >= 12:
             self.place_note_helper_lines(position, 12, note.degree, helper_line_x_offset)
         
-        if voice is not None:
+        if voice is not None and len(voice) > 0:
             voice_duration = voice_duration or note.duration
-            self.place_voice(position, note.duration, voice_duration, voice, hyphen_before)
+            track_i = 0
+            for track, hyphen in zip(voice, hyphen_before):
+                self.place_voice(track_i, position, note.duration, voice_duration, track, hyphen)
+                track_i += 1
     
     # def place_note(
     #     self, position: int, degree: int, duration: int,
@@ -224,12 +227,12 @@ class StaffDrawer(HasCairoContext):
             self.place_note( position, note )
         
 
-    def place_voice(self, position: int, note_duration: int, voice_duration: int, voice: str, hyphen_before=False):
-        if hyphen_before and self._last_lyric_data is None:
+    def place_voice(self, track_i: int, position: int, note_duration: int, voice_duration: int, voice: str, hyphen_before=False):
+        if hyphen_before and self._last_lyric_data[track_i] is None:
             raise ValueError("Cannot place hyphen before first lyric")
         
         x = self.layout.position_to_x(position)
-        y = self.layout.degree_to_y(self.layout.min_degree) + config("LYRICS_SPACE")
+        y = self.layout.degree_to_y(self.layout.min_degree) + config("LYRICS_SPACE")*(track_i + 1)
         self.ctx.select_font_face(config.VOICE_FONT_FACE)
         self.ctx.set_font_size(config.VOICE_FONT_SIZE)
         
@@ -241,10 +244,10 @@ class StaffDrawer(HasCairoContext):
         
         if hyphen_before:
             hyphen_length = self.ctx.text_extents("-")[2]
-            x = (self._last_lyric_data + start)/2 - hyphen_length/2
+            x = (self._last_lyric_data[track_i] + start)/2 - hyphen_length/2
             self.ctx.move_to(x, y)
             self.ctx.show_text("-")
-        self._last_lyric_data = start+width
+        self._last_lyric_data[track_i] = start+width
 
     def register(self, what, **args):
         self.layout.register(what, **args)

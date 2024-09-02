@@ -42,18 +42,18 @@ degree_int.setParseAction(lambda t: int(t[0])-1)
 param_with_numeric_value = pyparsing.Word(pyparsing.alphas + "_")("param") + python_int("value")
 param_with_python_value = pyparsing.Word(pyparsing.alphas + "_")("param") + python_arg("value")
 
-voice_track = pyparsing.Optional(
-    pyparsing.Literal("[").suppress() + pyparsing.Optional("-")("hyphen") + pyparsing.Word(pyparsing.pyparsing_unicode.Latin1.alphas) + pyparsing.Literal("]").suppress()
-)
 
 flipped = pyparsing.Optional("!")("flipped")
 
-note = pyparsing.Combine(
-    pyparsing.Optional("#")("alteration") + pyparsing.Optional("b")("alteration") + pyparsing.Optional("n")("alteration") + (degree_int("degree") | string_name_note("degree")) + pyparsing.Optional(".")("dotted") + flipped + voice_track("voice")
+inner_voice_track = pyparsing.Combine(pyparsing.Optional("-") + pyparsing.Word(pyparsing.pyparsing_unicode.Latin1.alphas + ",?! '\""))("word")
+
+voice_track = pyparsing.Optional(
+    pyparsing.Literal("[").suppress() + pyparsing.delimitedList(inner_voice_track, delim="|")("tracks") + pyparsing.Literal("]").suppress()
 )
 
+
 alteration = pyparsing.Optional(pyparsing.Or(["#", "b", "n"]))
-note = pyparsing.Combine(
+note = pyparsing.Group(
     alteration("alteration") + (degree_int("degree") | string_name_note("degree")) + pyparsing.Optional(".")("dotted") + flipped + voice_track("voice")
 )
 

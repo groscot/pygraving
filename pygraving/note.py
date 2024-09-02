@@ -23,7 +23,6 @@ class Note:
     @classmethod
     def parse_degree(cls, degree: int|str) -> int:
         if isinstance(degree, str):
-            print("DE", degree)
             # count number of "+" and "-" in the string
             pluses = degree.count("+")
             minuses = degree.count("-")
@@ -80,13 +79,16 @@ class Note:
             return dict(degree=token["degree"], modifiers=modifiers)
         else:
             voice = token["voice"]
-            hyphen_before = "hyphen" in token
-            if hyphen_before:
-                voice = voice[1]
-            else:
-                voice = voice[0]
+            hyphen_before = []
+            tracks = []
+            for track in voice:
+                has_voice = track.startswith("-")
+                hyphen_before.append(has_voice)
+                if has_voice:
+                    track = track[1:]
+                tracks.append(track)
             return dict(
-                degree=token["degree"], modifiers=modifiers, voice=voice, hyphen_before=hyphen_before
+                degree=token["degree"], modifiers=modifiers, voice=tracks, hyphen_before=hyphen_before
             )
     
     def compute_one_stem_endpoints(self, x0: float = 0.0, y0: float = 0.0):

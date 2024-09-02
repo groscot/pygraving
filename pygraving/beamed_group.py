@@ -56,10 +56,8 @@ class BeamedGroup(HasParentCairoContext):
     def draw_stems(self):
         N = len(self.notes)
         ys = np.linspace(self.y_start, self.y_end, N, endpoint=True)
-        print(self.y_start, self.y_end)
         for i in range(N):
             x = self.baseline[i][0]
-            print(x, self.baseline[i][1], ys[i])
             self.ctx.move_to(x, self.baseline[i][1])
             self.ctx.line_to(x, ys[i])
             self.stroke(config.STEM_LW)

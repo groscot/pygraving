@@ -28,7 +28,6 @@ for file in files:
         "value": value,
         "base64_img": make_preview(value)
     })
-print(files)
 # === === ===
 
 @app.route('/')
