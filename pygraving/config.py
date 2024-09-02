@@ -33,14 +33,22 @@ class Config:
     STEM_LENGTH = 3.0
     
     # Beamed groups
-    STEM_MIN_LENGTH = 2.0
+    STEM_MIN_LENGTH = 2.5
     BEAM_THICKNESS = 0.5
     BEAM_LINE_SPACE = 1.25
+    BEAM_MAX_SLOPE = 1.5
+    BEAM_MAX_Y_DIFFERENCE = 1.5
     
     # Voice track
     VOICE_FONT_FACE = "Times New Roman"
     LYRICS_SPACE = 2.5
     VOICE_FONT_SIZE = 36
+    
+    # Debug
+    DEBUG = False
+    DEBUG_FLAGS = {
+        "show_beam_block_note": True,
+    }
     
     def __call__(self, param: str = "") -> float:
         "Returns the absolute value of the parameter (multiplied by STAFF_LINE_HEIGHT)"
@@ -52,4 +60,8 @@ class Config:
         "Pixel-perfect half value"
         if isinstance(value, float):
             return value/2
-        return value//2 if value%2 == 0 else value//2 + 1 
+        return value//2 if value%2 == 0 else value//2 + 1
+    
+    def show_debug(self, flag: str) -> bool:
+        return self.DEBUG and self.DEBUG_FLAGS.get(flag, False)
+    

@@ -2,6 +2,7 @@ from io import BytesIO
 
 from cairo import FORMAT_ARGB32, Context, ImageSurface
 
+
 class HasCairoContext:
     lw: int = 1
     
@@ -29,6 +30,18 @@ class HasCairoContext:
         output = BytesIO()
         final_surface.write_to_png(output)
         return output.getvalue()
+    
+    def temporary_color(self, *rgb):
+        class TemporaryContext:
+            def __init__(self, obj, rgb):
+                self.obj = obj
+                self.rgb = rgb
+            def __enter__(self):
+                self.obj.ctx.set_source_rgb(*self.rgb)
+            def __exit__(self, *args):
+                self.obj.ctx.set_source_rgb(0, 0, 0)
+                pass
+        return TemporaryContext(self, rgb)
 
 
 class HasParentCairoContext:
@@ -41,3 +54,6 @@ class HasParentCairoContext:
 
     def stroke(self, lw=None):
         self.parent.stroke(lw)
+        
+    def temporary_color(self, *rgb):
+        return self.parent.temporary_color(*rgb)
