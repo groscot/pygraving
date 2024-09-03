@@ -38,8 +38,7 @@ class BeamedGroup(HasParentCairoContext):
     def compute_stems_endpoints_old_strategy(self):
         baseline = []
         for i, _note in enumerate(self.notes):
-            params = Note.parse_note_token(_note)
-            note = Note(**params)
+            note = Note.from_token(_note)
             if self.direction == -1:
                 note.modifiers += "!"
             x0 = self.parent.layout.position_to_x(self.position + i)
@@ -118,7 +117,6 @@ class BeamedGroup(HasParentCairoContext):
             blocking_note_index = self.determine_blocking_note(notes_real_y, y_end < y_start)
             previous_beam_position = tentative[blocking_note_index]
             
-            #* Uncomment to show the blocking note in red
             if config.show_debug("show_beam_block_note"):
                 with self.temporary_color(1,0,0):
                     self.ctx.arc(baseline[blocking_note_index][0], previous_beam_position, 5, 0, 2*np.pi)
@@ -154,3 +152,16 @@ class BeamedGroup(HasParentCairoContext):
         for _ in range(n):
             self.draw_beam_line(thickness, delta_y)
             delta_y += thickness * config.BEAM_LINE_SPACE
+
+    def get_notes_for_registration(self) -> list[Note]:
+        N = len(self.notes)
+        ys = np.linspace(self.y_start, self.y_end, N, endpoint=True)
+        notes = []
+        for i, _note in enumerate(self.notes):
+            note = Note.from_token(_note | {"duration": self._duration})
+            if self.direction == -1:
+                note.modifiers += "!"
+            note.stem_length = np.abs(ys[i] - self.baseline[i][1]) + config("BEAM_THICKNESS")
+            note.beamed = True
+            notes.append((self.position + i, note))
+        return notes

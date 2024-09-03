@@ -58,15 +58,6 @@ class StaffLayout():
 
     def register(self, what, **args):
         assert what in ["bar", "silence", "signature", "note", "chord", "beamed_group", "clef_alterations"]
-        if what == "beamed_group":
-            up = args.get("up", True)
-            for i, token in enumerate(args["notes"]):
-                note = Note.from_token(token | {"duration": args["duration"]})
-                note.beamed = True
-                if not up:
-                    #i) necessary for the layout margins if a low note is flipped
-                    note.modifiers += "!"
-                self.register("note", note=note, position=args["position"] + i)
         if what == "note":
             # print(args["note"].extras)
             if args["note"].extras.get("voice"):
@@ -91,7 +82,7 @@ class StaffLayout():
                 note = args["note"]
                 up_sign = 1 if note.up else -1
                 degree = note.degree
-                degree_corrected_with_stem = degree + up_sign * (config.STEM_LENGTH*2)
+                degree_corrected_with_stem = degree + up_sign * 2 *(note.stem_length/config.STAFF_LINE_HEIGHT)
                 if args["position"] > max_position:
                     max_position_type = what
                 max_position = max(max_position, args["position"])
@@ -104,7 +95,7 @@ class StaffLayout():
                     note = Note.from_token(note_token)
                     up_sign = 1 if args.get("up", True) else -1
                     degree = note.degree
-                    degree_corrected_with_stem = degree + up_sign * (config.STEM_LENGTH*2)
+                    degree_corrected_with_stem = degree + up_sign * 2 * (note.stem_length/config.STAFF_LINE_HEIGHT)
                     if args["position"] > max_position:
                         max_position_type = what
                     max_position = max(max_position, args["position"])

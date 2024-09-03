@@ -192,11 +192,18 @@ class StaffDrawer(HasCairoContext):
     #         voice_duration = voice_duration or duration
     #         self.place_voice(position, duration, voice_duration, voice, hyphen_before)
 
+    def config_beamed_group(self, position: float, notes: list[dict], duration: int, up: bool = True):
+        print("config_beamed_group", notes)
+        self.beamedGroupHandler.init(position, notes, duration, up)
+        notes = self.beamedGroupHandler.get_notes_for_registration()
+        for position, note in notes:
+            self.register("note", position=position, note=note)
+
     def place_beamed_group(self, notes: list[dict], duration: int, position: float, up: bool = True):
         self.beamedGroupHandler.init(position, notes, duration, up)
         self.beamedGroupHandler.draw_beam()
         self.beamedGroupHandler.draw_stems()
-        
+    
     def place_chord(self, notes: list[dict], duration: int, position: float, up: bool = True):
         degrees = []
         note_objects = []
@@ -251,6 +258,8 @@ class StaffDrawer(HasCairoContext):
 
     def register(self, what, **args):
         self.layout.register(what, **args)
+        if hasattr(self, "config_" + what):
+            getattr(self, "config_" + what)(**args)
 
     def place_registered(self):
         for what, args in self.layout._registered:
