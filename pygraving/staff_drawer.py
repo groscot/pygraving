@@ -193,7 +193,6 @@ class StaffDrawer(HasCairoContext):
     #         self.place_voice(position, duration, voice_duration, voice, hyphen_before)
 
     def config_beamed_group(self, position: float, notes: list[dict], duration: int, up: bool = True):
-        print("config_beamed_group", notes)
         self.beamedGroupHandler.init(position, notes, duration, up)
         notes = self.beamedGroupHandler.get_notes_for_registration()
         for position, note in notes:
