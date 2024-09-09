@@ -19,6 +19,7 @@ class BeamedGroup(HasParentCairoContext):
         self.direction = 1 if up else -1
         self.notes = notes
         self.durations = durations
+        self.debug_positions = []
         self.compute_stems_endpoints()
     
     def determine_blocking_note(self, notes_real_y, ascending: bool = True):
@@ -26,10 +27,11 @@ class BeamedGroup(HasParentCairoContext):
         # and that will change the blocking note if several notes have the same y coordinate
         blocking_value = np.min(notes_real_y) if self.direction == 1 else np.max(notes_real_y)
         candidates = np.where(notes_real_y == blocking_value)[0]
-        if ascending:
-            blocking_note_index = candidates[0]
+        if self.direction == 1:
+            index = 0 if ascending else -1
         else:
-            blocking_note_index = candidates[-1]
+            index = -1 if ascending else 0
+        blocking_note_index = candidates[index]
         return blocking_note_index
     
         blocking_note_index = np.argmin(notes_real_y) if self.direction == 1 else np.argmax(notes_real_y)
@@ -118,15 +120,13 @@ class BeamedGroup(HasParentCairoContext):
             previous_beam_position = tentative[blocking_note_index]
             
             if config.show_debug("show_beam_block_note"):
-                with self.temporary_color(1,0,0):
-                    self.ctx.arc(baseline[blocking_note_index][0], previous_beam_position, 5, 0, 2*np.pi)
-                    self.ctx.fill()
+                self.debug_positions.append((baseline[blocking_note_index][0], previous_beam_position))
                 
             fixed_beam_position = notes_real_y[blocking_note_index] - self.direction * engraved_min_length
             delta = previous_beam_position - fixed_beam_position
             
-            self.y_start = y_start - self.direction*delta
-            self.y_end = y_end - self.direction*delta
+            self.y_start = y_start - delta
+            self.y_end = y_end - delta
             
     def draw_stems(self):
         N = len(self.notes)
@@ -136,6 +136,13 @@ class BeamedGroup(HasParentCairoContext):
             self.ctx.move_to(x, self.baseline[i][1])
             self.ctx.line_to(x, ys[i])
             self.stroke(config.STEM_LW)
+            
+        if config.show_debug("show_beam_block_note"):
+            print("debug", self.debug_positions)
+            with self.temporary_color(1,0,0):
+                for x,y in self.debug_positions:
+                    self.ctx.arc(x, y, 5, 0, 2*np.pi)
+                    self.ctx.fill()
     
     def draw_beam_line(self, thickness, delta_y=0):
         self.ctx.move_to(self.x_start, delta_y + self.y_start)

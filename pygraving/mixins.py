@@ -40,7 +40,6 @@ class HasCairoContext:
                 self.obj.ctx.set_source_rgb(*self.rgb)
             def __exit__(self, *args):
                 self.obj.ctx.set_source_rgb(0, 0, 0)
-                pass
         return TemporaryContext(self, rgb)
 
 
