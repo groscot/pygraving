@@ -129,4 +129,7 @@ class StateMachine:
         note = Note.from_token(token["note"])
         note.duration = self.active_duration
         self.active_scoreline.register("note", note=note, position=self.last_position)
-        self.forward()
+        
+        multiplier = 1.5 if note.is_dotted else 1.
+        space = self.active_duration_in_spaces * multiplier
+        self.forward(space)

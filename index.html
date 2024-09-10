@@ -86,10 +86,18 @@
         });
 
         const insertForm = document.getElementById('insertForm');
+
         const keywordButtons = insertForm.querySelectorAll('.keyword-btn');
         keywordButtons.forEach(button => {
             button.addEventListener('click', function(e) {
                 e.preventDefault();
+                insertAtCursor(this.dataset.insert);
+            });
+        });
+
+        const durationButtons = insertForm.querySelectorAll('.duration-btn');
+        durationButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
                 insertAtCursor(this.dataset.insert);
             });
         });
@@ -150,12 +158,25 @@
             <input type="button" value="+ Portée" data-insert="\nBEGIN line\n" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
             <input type="button" value="+ Instrument" data-insert="\nBEGIN grouped\n" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
             |
-            Durée
-            <input type="button" value="Ronde" data-insert="\nSET duration 0\n" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
-            <input type="button" value="Blanche" data-insert="\nSET duration 1\n" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
-            <input type="button" value="Noire" data-insert="\nSET duration 2\n" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
-            <input type="button" value="Croche" data-insert="\nSET duration 3\n" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
-            <input type="button" value="Double croche" data-insert="\nSET duration 4\n" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+            <span class="inline-flex items-center ml-4 mr-2">Durée active</span>
+            <div class="inline-flex flex-wrap">
+                <label class="inline-flex items-center m-0 cursor-pointer">
+                    <input type="radio" name="duration" value="#" class="hidden peer duration-btn" data-insert="SET duration 0\n">
+                    <span class="px-2 py-1 text-sm border-r border-gray-400 rounded-l-md bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Ronde</span>
+                </label>
+                <label class="inline-flex items-center m-0 cursor-pointer">
+                    <input type="radio" name="duration" value="b" class="hidden peer duration-btn" data-insert="SET duration 1\n">
+                    <span class="px-2 py-1 text-sm border-r border-gray-400 bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Blanche</span>
+                </label>
+                <label class="inline-flex items-center m-0 cursor-pointer">
+                    <input type="radio" name="duration" value="b" class="hidden peer duration-btn" data-insert="SET duration 2\n" checked="checked">
+                    <span class="px-2 py-1 text-sm border-r border-gray-400 bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Noire</span>
+                </label>
+                <label class="inline-flex items-center m-0 cursor-pointer">
+                    <input type="radio" name="duration" value="n" class="hidden peer duration-btn" data-insert="SET duration 3\n">
+                    <span class="px-2 py-1 text-sm rounded-r-md bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Croche</span>
+                </label>
+            </div>
             |
             <input type="button" value="Silence" data-insert="_" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
             <input type="button" value="Paroles" data-insert="[]" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
