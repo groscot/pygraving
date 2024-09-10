@@ -27,6 +27,45 @@
         });
     }
 
+    function insertAtCursor(text) {
+        const textarea = document.querySelector('textarea[name="body"]');
+        textarea.focus();
+        const decodedText = text.replace(/\\n/g, '\n');
+        document.execCommand('insertText', false, decodedText);
+    }
+
+    function wrapSelection(before, after) {
+        const textarea = document.querySelector('textarea[name="body"]');
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const selection = textarea.value.substring(start, end);
+        const replacement = before + selection + after;
+        textarea.focus();
+        document.execCommand('insertText', false, replacement);
+    }
+
+    function insertNote(note) {
+        const modifier = document.querySelector('input[name="modifier"]:checked').value;
+        const inverted = document.querySelector('input[name="inverted"]').checked;
+        const gamme = parseInt(document.getElementById('gammeInput').value, 10);
+        
+        let modifiedNote = note;
+        
+        if (modifier) {
+            modifiedNote = modifier + modifiedNote;
+        }
+        
+        if (gamme !== 0) {
+            modifiedNote += gamme > 0 ? '+'.repeat(gamme) : '-'.repeat(Math.abs(gamme));
+        }
+        
+        if (inverted) {
+            modifiedNote += '!';
+        }
+        
+        insertAtCursor(modifiedNote + ' ');
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         doPreview();
 
@@ -45,7 +84,41 @@
                 body.removeEventListener('input', function() {});
             }
         });
+
+        const insertForm = document.getElementById('insertForm');
+        const keywordButtons = insertForm.querySelectorAll('.keyword-btn');
+        keywordButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                insertAtCursor(this.dataset.insert);
+            });
+        });
+
+        document.querySelectorAll('input[name="modifier"]').forEach(radio => {
+            radio.addEventListener('click', function() {
+                // If this radio button was already checked, uncheck it and check the normal modifier
+                if (this === previousChecked) {
+                    this.checked = false;
+                    document.getElementById('modifier-normal').checked = true;
+                } else {
+                    // Otherwise, update the previously checked radio
+                    previousChecked = this;
+                }
+            });
+        });
     });
+
+    function decreaseGamme() {
+        var input = document.getElementById('gammeInput');
+        input.value = parseInt(input.value, 10) - 1;
+    }
+    function increaseGamme() {
+        var input = document.getElementById('gammeInput');
+        input.value = parseInt(input.value, 10) + 1;
+    }
+
+    // Store the previously checked radio button
+    let previousChecked = null;
 </script>
 </head>
 <body class="p-4">
@@ -71,6 +144,64 @@
     <div class="my-2 p-2 bg-red-100 text-red-800">
         <b>Attention</b> : une erreur dans le code peut mener à une partition qui s'arrête de façon abrupte.
     </div>
+    <div class="">
+    <div class="my-0 p-2 border-b sticky top-0 bg-white">
+        <form id="insertForm" class="m-0">
+            <input type="button" value="+ Portée" data-insert="\nBEGIN line\n" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+            <input type="button" value="+ Instrument" data-insert="\nBEGIN grouped\n" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+            |
+            Durée
+            <input type="button" value="Ronde" data-insert="\nSET duration 0\n" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+            <input type="button" value="Blanche" data-insert="\nSET duration 1\n" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+            <input type="button" value="Noire" data-insert="\nSET duration 2\n" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+            <input type="button" value="Croche" data-insert="\nSET duration 3\n" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+            <input type="button" value="Double croche" data-insert="\nSET duration 4\n" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+            |
+            <input type="button" value="Silence" data-insert="_" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+            <input type="button" value="Paroles" data-insert="[]" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+            |
+            <input type="button" value="Accord" onclick="wrapSelection('(', ')')" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+            <input type="button" value="Groupe" onclick="wrapSelection('[', ']')" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+            <br>
+            <span class="inline-flex items-center mr-4 mb-2 text-gray-800 font-semibold">Note</span>
+            <div class="inline-flex flex-wrap">
+                <input type="radio" name="modifier" value="" id="modifier-normal" class="hidden" checked="checked">
+                <label class="inline-flex items-center m-0 cursor-pointer">
+                    <input type="radio" name="modifier" value="#" class="hidden peer">
+                    <span class="px-2 py-1 text-sm border-r border-gray-400 rounded-l-md bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Dièse #</span>
+                </label>
+                <label class="inline-flex items-center m-0 cursor-pointer">
+                    <input type="radio" name="modifier" value="b" class="hidden peer">
+                    <span class="px-2 py-1 text-sm border-r border-gray-400 bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Bémol b</span>
+                </label>
+                <label class="inline-flex items-center m-0 cursor-pointer">
+                    <input type="radio" name="modifier" value="n" class="hidden peer">
+                    <span class="px-2 py-1 text-sm rounded-r-md bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Bécart</span>
+                </label>
+            </div>
+            <div class="inline-flex flex-wrap">
+                <label class="inline-flex items-center m-0 cursor-pointer">
+                    <input type="checkbox" name="inverted" class="hidden peer">
+                    <span class="px-2 py-1 text-sm rounded-md bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Inversée</span>
+                </label>
+            </div>
+            <div class="inline-flex flex-wrap">
+                <span class="inline-flex items-center ml-4 mr-2">Gamme</span>
+                <input type="button" value="-" onclick="decreaseGamme()" class="px-2 py-1 text-sm rounded-md bg-gray-100 hover:bg-gray-200 text-gray-700 ">
+                <input type="text" value="0" class="px-2 py-1 text-sm rounded-md text-gray-700 w-8 text-center" name="gamme" id="gammeInput">
+                <input type="button" value="+" onclick="increaseGamme()" class="px-2 py-1 text-sm rounded-md bg-gray-100 hover:bg-gray-200 text-gray-700 ">
+            </div>
+            <div class="inline-flex flex-wrap">
+                <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('do')">Do</button>
+                <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('re')">Ré</button>
+                <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('mi')">Mi</button>
+                <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('fa')">Fa</button>
+                <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('sol')">Sol</button>
+                <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('la')">La</button>
+                <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('si')">Si</button>
+            </div>
+        </form>
+    </div>
     <div class="lg:grid grid-cols-2">
         <div class="bg-gray-100 p-4 m-2">
             <form class="">
@@ -89,6 +220,7 @@ SET duration 2 /* 0 = ronde, 1 = blanche, 2 = noire, etc. */
         <div class="border p-4 m-2 shadow">
             <img class="preview" src="" alt="" class="max-w-full">
         </div>
+    </div>
     </div>
 </body>
 </html>

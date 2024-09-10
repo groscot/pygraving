@@ -9,7 +9,8 @@ class Config:
     #i) The rest are multipliers
     
     # STAFF
-    STAVES_SPACE = 1.5
+    STAVES_SPACE = 2.0
+    STAVES_GROUP_SPACE = 0.25
     STAFF_ORIGIN_POSITION_BASE = 1.3
     CLEF_ALTERATIONS_SPACE = 0.33
     SIGNATURE_SPACE = 0.75

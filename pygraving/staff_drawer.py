@@ -19,6 +19,7 @@ CLEF_ORIGINAL_HEIGHT = 1000
 
 class StaffDrawer(HasCairoContext):
     _last_lyric_data = {0: None}
+    in_group_after: bool = False
     
     def init(self):
         self.layout = StaffLayout()
@@ -26,6 +27,18 @@ class StaffDrawer(HasCairoContext):
         self.beamedGroupHandler = BeamedGroup(self)
         self.symbolDrawer = SymbolDrawer(self)
         self.symbolDrawer.init()
+    
+    @property
+    def bottom_staff_y(self):
+        return self.layout.y + 2*config.STAFF_LINE_HEIGHT
+    
+    @property
+    def top_staff_y(self):
+        return self.layout.y - 2*config.STAFF_LINE_HEIGHT
+    
+    @property
+    def x(self):
+        return self.layout.x
     
     def draw_lines(self):
         for i in range(-2, 5-2):

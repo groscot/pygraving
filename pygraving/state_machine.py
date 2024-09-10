@@ -85,6 +85,10 @@ class StateMachine:
             if token["object"] == "line":
                 self.active_scoreline = self.score.add_scoreline()
                 self.last_position = 0
+            elif token["object"] == "grouped":
+                grouped_lined = self.score.add_scoreline(grouped_with=self.active_scoreline)
+                self.active_scoreline = grouped_lined
+                self.last_position = 0
             else:
                 raise ValueError("Unknown object: " + token["object"])
         elif token["command"] == "SET":
