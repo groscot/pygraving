@@ -1,7 +1,6 @@
-from .config import Config
+from .config import config
 from .note import Note
 
-config = Config()
 
 class StaffLayout():
     """

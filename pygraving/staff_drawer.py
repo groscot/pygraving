@@ -2,15 +2,13 @@ import os
 import pathlib
 
 from .beamed_group import BeamedGroup
-from .config import Config
+from .config import config
 from .load_svg import svg_path_to_ctx_fill
 from .mixins import HasCairoContext
 from .note import Note
 from .note_drawer import NoteDrawer
 from .staff_layout import StaffLayout
 from .symbol_drawer import SymbolDrawer
-
-config = Config()
 
 current_path = pathlib.Path(os.path.dirname(os.path.abspath(__file__)))
 draw_clef = svg_path_to_ctx_fill( current_path / "shapes/clef_G.txt" )

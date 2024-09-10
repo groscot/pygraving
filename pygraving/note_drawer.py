@@ -4,12 +4,10 @@ from math import pi
 
 import cairo
 
-from .config import Config
+from .config import config
 from .load_svg import svg_path_to_ctx_fill
 from .mixins import HasParentCairoContext
 from .note import Note
-
-config = Config()
 
 current_path = pathlib.Path(os.path.dirname(os.path.abspath(__file__)))
 draw_curl = svg_path_to_ctx_fill( current_path / "shapes/curl.txt" )

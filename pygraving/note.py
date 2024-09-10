@@ -1,6 +1,4 @@
-from .config import Config
-
-config = Config()
+from .config import config
 
 NOTE_DEGREES = ["do", "re", "mi", "fa", "sol", "la", "si"]
 

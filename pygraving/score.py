@@ -4,9 +4,7 @@ import numpy as np
 from cairo import FORMAT_ARGB32, Context, ImageSurface
 
 from . import StaffDrawer, get_image, prepare_scoreline_new
-from .config import Config
-
-config = Config()
+from .config import config
 
 
 class Score:

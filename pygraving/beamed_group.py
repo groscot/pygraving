@@ -1,10 +1,8 @@
 import numpy as np
 
-from .config import Config
+from .config import config
 from .mixins import HasParentCairoContext
 from .note import Note
-
-config = Config()
 
 
 class BeamedGroup(HasParentCairoContext):

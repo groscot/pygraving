@@ -2,11 +2,9 @@ import os
 import pathlib
 from math import pi
 
-from .config import Config
+from .config import config
 from .load_svg import svg_path_to_ctx_fill
 from .mixins import HasParentCairoContext
-
-config = Config()
 
 current_path = pathlib.Path(os.path.dirname(os.path.abspath(__file__)))
 

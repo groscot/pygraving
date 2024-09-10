@@ -1,5 +1,6 @@
 # from enum import Enum
 
+from .config import config
 from .note import Note
 from .parser import parse_input
 from .score import Score
@@ -23,6 +24,7 @@ class StateMachine:
     # state: State = State.INIT
     
     def __init__(self) -> None:
+        self.override_config = {}
         score = Score()
         self.score = score
         self.active_duration = 2
@@ -32,7 +34,8 @@ class StateMachine:
     def __call__(self, text_input: str):
         parsed_tokens = parse_input(text_input)
         self.run(parsed_tokens)
-        return self.score.finalize()
+        with config.temporary_override(**self.override_config):
+            return self.score.finalize()
     
     @property
     def active_duration_in_spaces(self):
@@ -55,6 +58,12 @@ class StateMachine:
         token = token.asDict()
         if "command" in token:
             self.process_command(token)
+            return
+        if "config" in token:
+            param = token["param"]
+            value = token["value"][0]
+            print("config", param, value, type(value))
+            self.override_config[param] = value
             return
         if "bar" in token:
             self.active_scoreline.register("bar", position=self.last_position, style=token["bar"])

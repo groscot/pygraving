@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from math import pi
 
 
@@ -66,3 +67,19 @@ class Config:
     def show_debug(self, flag: str) -> bool:
         return self.DEBUG and self.DEBUG_FLAGS.get(flag, False)
     
+    def temporary_override(self, **kwargs):
+        "Temporarily override the config values using a context manager"
+        old_values = {}
+        for key, value in kwargs.items():
+            old_values[key] = getattr(self, key)
+            setattr(self, key, value)
+        @contextmanager
+        def context():
+            yield
+            for key, value in old_values.items():
+                setattr(self, key, value)
+        return context()
+    
+
+global config
+config = Config()

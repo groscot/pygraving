@@ -70,6 +70,7 @@ signature_arg = pyparsing.Group(pyparsing.Word(pyparsing.nums)("digit_1") + pypa
 signature = pyparsing.Keyword("SIGNATURE")("command") + signature_arg("value")
 
 _BEGIN = pyparsing.Keyword("BEGIN")
+_CONFIG = pyparsing.Keyword("CONFIG")
 _SET = pyparsing.Keyword("SET")
 _MOVE = pyparsing.Keyword("MOVE")
 _END = pyparsing.Keyword("END")
@@ -82,6 +83,7 @@ bar = pyparsing.Literal("||:") | pyparsing.Literal(":||") | pyparsing.Literal("|
 commands = [
     _BEGIN("command") + pyparsing.Word(pyparsing.alphas)("object"),
     _SET("command") + param_with_numeric_value,
+    _CONFIG("config") + param_with_python_value,
     _MOVE("command") + pyparsing.Or([python_float, python_int])("amount") + pyparsing.Word(pyparsing.alphas)("direction"),
     _END("command") + pyparsing.Word(pyparsing.alphas)("object"),
     bar("bar"),
