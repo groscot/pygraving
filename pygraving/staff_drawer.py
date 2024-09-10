@@ -1,5 +1,6 @@
 import os
 import pathlib
+from math import pi
 
 from .beamed_group import BeamedGroup
 from .config import config
@@ -96,7 +97,7 @@ class StaffDrawer(HasCairoContext):
     
     def draw_bar(self, x: int, lw_multiplier: float = 1.0):
         lw = config.STAFF_LW * lw_multiplier
-        delta_x = lw/2 # to have a centered line
+        delta_x = 0 #lw/2 # to have a centered line
         self.ctx.move_to(x - delta_x, self.layout.y + 2*config.STAFF_LINE_HEIGHT)
         self.ctx.line_to(x - delta_x, self.layout.y - 2*config.STAFF_LINE_HEIGHT)
         self.stroke(lw)
@@ -111,10 +112,12 @@ class StaffDrawer(HasCairoContext):
         
         if style == "|":
             self.draw_bar(x, lw_multiplier=1.0)
-        elif style == "||":
+        elif style == "||" or style == "[|" or style == "|]":
+            left_thickness = 3.0 if style[0] == "[" else 1.0
+            right_thickness = 3.0 if style[1] == "]" else 1.0
             delta_x = config.STAFF_LW * 2
-            self.draw_bar(x - delta_x, lw_multiplier=1.0)
-            self.draw_bar(x + delta_x, lw_multiplier=1.0)
+            self.draw_bar(x - delta_x, lw_multiplier=left_thickness)
+            self.draw_bar(x + delta_x, lw_multiplier=right_thickness)
         
         if draw_dots:
             delta_x = config.STAFF_LW * 4 + 2 * config("NOTE_DOT_RADIUS")
@@ -131,6 +134,38 @@ class StaffDrawer(HasCairoContext):
         if (2 <= degree <= 10) and (degree%2 == 0):
             y += config("DOT_Y_OFFSET")
         self.symbolDrawer.draw_dot(x, y)
+        
+    def place_fingering(self, position: int, degree: int, fingering: int, circled: bool):
+        x = self.layout.position_to_x(position)
+        
+        if circled:
+            degree = -2
+        else:
+            degree = degree + 0.66 # 2/3 to prevent perfect alignment with grid ("collision")
+        y = self.layout.degree_to_y(degree) 
+        
+        self.ctx.save()
+        self.ctx.select_font_face(config.FINGERING_FONT_FACE)
+        self.ctx.set_font_size(config("FINGERING_RELATIVE_FONT_SIZE"))
+        # width = self.ctx.text_extents(str(fingering))[2]
+        text_extents = self.ctx.text_extents(str(fingering))
+        width = text_extents[2]
+        height = text_extents[3]
+        x -= width/2
+        
+        if not circled:
+            x -= config("NOTE_ELLIPSE_BASE_WIDTH")
+        
+        self.ctx.move_to(x, y)
+        self.ctx.show_text(str(fingering))
+        self.ctx.new_path()
+        
+        if circled:
+            self.ctx.set_line_width(config.FINGERING_LW)
+            radius = config("FINGERING_RELATIVE_FONT_SIZE")/2
+            self.ctx.arc(x + width/2, y - height/2, radius, 0, 2*pi)
+            self.ctx.stroke()
+        self.ctx.restore()
         
     def place_signature(self, digit_1: int = 1, digit_2: int = 1, is_C: bool = False):
         #i) need to give the position here because the 0 position is changed
@@ -155,6 +190,9 @@ class StaffDrawer(HasCairoContext):
         voice_duration = note.extras.get("voice_duration", None)
         hyphen_before = note.extras.get("hyphen_before", False)
         
+        fingering_string = note.extras.get("fingering_string", None)
+        fingering_finger = note.extras.get("fingering_finger", None)
+        
         x = self.layout.position_to_x(position)
         y = self.layout.degree_to_y(note.degree)
         
@@ -176,6 +214,12 @@ class StaffDrawer(HasCairoContext):
             for track, hyphen in zip(voice, hyphen_before):
                 self.place_voice(track_i, position, note.duration, voice_duration, track, hyphen)
                 track_i += 1
+        
+        if fingering_finger is not None:
+            self.place_fingering(position, note.degree, fingering_finger, False)
+        
+        if fingering_string is not None:
+            self.place_fingering(position, note.degree, fingering_string, True)
     
     # def place_note(
     #     self, position: int, degree: int, duration: int,

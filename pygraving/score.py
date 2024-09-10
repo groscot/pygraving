@@ -78,7 +78,6 @@ class Score:
         f_ctx.paint()
 
         layout_positions = self.prepare_layout_positions()
-        print(layout_positions)
         for i in range(N):
             x, y = layout_positions[i]
             f_ctx.set_source_surface(surfaces[i], x, y) #i) this surface was filled in finish_frames()
@@ -93,8 +92,6 @@ class Score:
                 x = first_line.layout.x
                 f_ctx.move_to(x, first_line.top_staff_y + layout_positions[first][1])
                 f_ctx.line_to(x, second_line.bottom_staff_y + layout_positions[second][1])
-                print(first_line.top_staff_y, first_line.bottom_staff_y, second_line.top_staff_y, second_line.bottom_staff_y)
-                print(f"Drawing line from {x}, {first_line.top_staff_y} to {x}, {second_line.bottom_staff_y}")
                 f_ctx.stroke()
         
         output = BytesIO()

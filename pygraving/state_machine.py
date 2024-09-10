@@ -88,6 +88,8 @@ class StateMachine:
             )
             self.forward( len(token["beam"]["notes"]) )
             return
+        else:
+            print("Unknown token", original_token)
         
     def process_command(self, token):
         if token["command"] == "BEGIN":

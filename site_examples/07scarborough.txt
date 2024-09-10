@@ -5,38 +5,37 @@ SIGNATURE 3 4
 SET duration 1 /* blanche */
 
 
-||:
 /* On met la basse à l'envers avec !
-puis on recule de 2 positions pour mettre la melodie */
+puis on recule de 3 positions pour mettre la melodie */
 
 mi-.!
-MOVE 2 back
+MOVE 3 back
 
-[mi+ si sol si mi sol] |
+[mi+ si sol si mi(1) sol] |
 
-[fa sol si sol re sol]
-:||
+[fa(3) sol si sol re sol]
+:|]
 
 /* Début de la mélodie */
 
 mi-.!
-MOVE 2 back
+MOVE 3 back
 
 [mi+ si sol si mi+ si] |
 
 BEGIN line
 SET clef_sharp 1
 
-MOVE 1.66 forward /* pour aligner avec la ligne du dessus */
+MOVE 0.66 forward /* pour aligner avec la ligne du dessus */
 
 mi-.!
-MOVE 2 back
+MOVE 3 back
 [si+ si sol si si+ si] |
 
 re.!
-MOVE 2 back
+MOVE 3 back
 [fa+ la re+ sol+ fa+ la] |
 
 mi-.!
-MOVE 2 back
-[mi+ si sol si mi sol] |
+MOVE 3 back
+[mi+ si sol si mi sol] |]

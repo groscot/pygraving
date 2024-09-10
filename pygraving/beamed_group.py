@@ -136,7 +136,6 @@ class BeamedGroup(HasParentCairoContext):
             self.stroke(config.STEM_LW)
             
         if config.show_debug("show_beam_block_note"):
-            print("debug", self.debug_positions)
             with self.temporary_color(1,0,0):
                 for x,y in self.debug_positions:
                     self.ctx.arc(x, y, 5, 0, 2*np.pi)

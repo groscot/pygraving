@@ -66,6 +66,14 @@ class Note:
     @classmethod
     def parse_note_token(cls, token):
         modifiers = ""
+        fingering_finger = None
+        fingering_string = None
+        
+        if "fingering_finger" in token:
+            fingering_finger = int(token["fingering_finger"][0])
+        if "fingering_string" in token:
+            fingering_string = int(token["fingering_string"][0])
+        
         if "dotted" in token:
             modifiers += "."
         if "flipped" in token:
@@ -74,7 +82,7 @@ class Note:
             modifiers += token["alteration"]
         
         if "voice" not in token:
-            return dict(degree=token["degree"], modifiers=modifiers)
+            return dict(degree=token["degree"], modifiers=modifiers, fingering_finger=fingering_finger, fingering_string=fingering_string)
         else:
             voice = token["voice"]
             hyphen_before = []
@@ -86,7 +94,9 @@ class Note:
                     track = track[1:]
                 tracks.append(track)
             return dict(
-                degree=token["degree"], modifiers=modifiers, voice=tracks, hyphen_before=hyphen_before
+                degree=token["degree"], modifiers=modifiers,
+                fingering_finger=fingering_finger, fingering_string=fingering_string,
+                voice=tracks, hyphen_before=hyphen_before
             )
     
     def compute_one_stem_endpoints(self, x0: float = 0.0, y0: float = 0.0):

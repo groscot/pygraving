@@ -2,6 +2,19 @@ from .config import config
 from .note import Note
 
 
+class PositionDegreeBounds():
+    max_position = 0
+    min_degree = 0 -1 # bottom C
+    max_degree = 12 +1 # top A
+    
+    def add_position(self, position):
+        self.max_position = max(self.max_position, position)
+        
+    def add_degree(self, degree_min, degree_max=None):
+        degree_max = degree_max or degree_min
+        self.min_degree = min(self.min_degree, degree_min)
+        self.max_degree = max(self.max_degree, degree_max)
+
 class StaffLayout():
     """
     The origin is the left side of the center staff line
@@ -65,53 +78,55 @@ class StaffLayout():
         
     def calculate_min_max_registered(self):
         # Remark: the +/-1 are to include the bottom/top edge of the notes (0 is their center)
-        max_position = 0
+        bounds = PositionDegreeBounds()
         max_position_type = None
         max_position_offset = 0
-        min_degree = self.min_degree
-        max_degree = self.max_degree
         for what, args in self._registered:
             if what == "bar":
-                if args["position"] > max_position:
+                if args["position"] > bounds.max_position:
                     max_position_type = "bar_" + args["style"]
-                max_position = max(max_position, args["position"])
-            if what == "silence":
-                max_position = max(max_position, args["position"])
+                bounds.add_position(args["position"])
+            elif what == "silence":
+                bounds.add_position(args["position"])
             elif what == "note":
                 note = args["note"]
                 up_sign = 1 if note.up else -1
                 degree = note.degree
                 degree_corrected_with_stem = degree + up_sign * 2 *(note.stem_length/config.STAFF_LINE_HEIGHT)
-                if args["position"] > max_position:
+                
+                if args["position"] > bounds.max_position:
                     max_position_type = what
-                max_position = max(max_position, args["position"])
-                max_degree = max(max_degree, degree+1)
-                min_degree = min(min_degree, degree-1)
-                max_degree = max(max_degree, degree_corrected_with_stem)
-                min_degree = min(min_degree, degree_corrected_with_stem)
+                bounds.add_position(args["position"])
+                bounds.add_degree(degree-1, degree+1)
+                bounds.add_degree(degree_corrected_with_stem)
+                
+                if note.extras.get("fingering_string"):
+                    bounds.add_degree(-2)
+                if note.duration >= 3:
+                    bounds.add_position(args["position"] + 0.3) # account for the curl
+                if note.is_dotted:
+                    bounds.add_position(args["position"] + config("DOT_X_OFFSET")/config("NOTE_SPACE"))
             elif what == "chord":
                 for note_token in args["notes"]:
                     note = Note.from_token(note_token)
                     up_sign = 1 if args.get("up", True) else -1
                     degree = note.degree
                     degree_corrected_with_stem = degree + up_sign * 2 * (note.stem_length/config.STAFF_LINE_HEIGHT)
-                    if args["position"] > max_position:
+                    if args["position"] > bounds.max_position:
                         max_position_type = what
-                    max_position = max(max_position, args["position"])
-                    max_degree = max(max_degree, degree+1)
-                    min_degree = min(min_degree, degree-1)
-                    max_degree = max(max_degree, degree_corrected_with_stem)
-                    min_degree = min(min_degree, degree_corrected_with_stem)
+                    bounds.add_position(args["position"])
+                    bounds.add_degree(degree-1, degree+1)
+                    bounds.add_degree(degree_corrected_with_stem)
             elif what == "clef_alterations":
                 degrees = self.generate_alterations_degrees(args["type"], args["number"])
-                max_degree = max(self.max_degree, max(degrees)+2) #i) +2 because the # is quite high
+                bounds.add_degree(max(degrees)+2) #i) +2 because the # is quite high
                 max_position_offset += args["number"] * config.CLEF_ALTERATIONS_SPACE
             elif what == "signature":
                 max_position_offset += config.SIGNATURE_SPACE
-        self.min_degree = min_degree
-        self.max_degree = max_degree
-        max_position = max_position + max_position_offset
-        return max_position, max_position_type, min_degree, max_degree
+        self.min_degree = bounds.min_degree
+        self.max_degree = bounds.max_degree
+        max_position = bounds.max_position + max_position_offset
+        return max_position, max_position_type, bounds.min_degree, bounds.max_degree
     
     def autolayout_from_registered(self):
         max_position, max_position_type, min_degree, max_degree = self.calculate_min_max_registered()
@@ -133,7 +148,8 @@ class StaffLayout():
             if style == "|":
                 length -= self.padding
             else:
-                length -= self.padding - config.STAFF_LW*2
+                multiplier = 2 if style[1] == "|" else 3
+                length -= self.padding - config.STAFF_LW*multiplier
         else:
             length += self.note_helper_line_padding(include_note=False)
         self.length = length

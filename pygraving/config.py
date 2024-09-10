@@ -46,6 +46,12 @@ class Config:
     LYRICS_SPACE = 2.5
     VOICE_FONT_SIZE = 36
     
+    # Fingering
+    FINGERING_FONT_FACE = "Times New Roman"
+    FINGERING_LW = 2
+    FINGERING_SPACE = 2.5
+    FINGERING_RELATIVE_FONT_SIZE = 1.5
+    
     # Debug
     DEBUG = False
     DEBUG_FLAGS = {

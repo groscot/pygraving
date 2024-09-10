@@ -51,10 +51,18 @@ voice_track = pyparsing.Optional(
     pyparsing.Literal("[").suppress() + pyparsing.delimitedList(inner_voice_track, delim="|")("tracks") + pyparsing.Literal("]").suppress()
 )
 
+fingering_string = pyparsing.Optional(
+    pyparsing.Literal("((").suppress() + pyparsing.Word(pyparsing.nums)("number") + pyparsing.Literal("))").suppress()
+)
+fingering_finger = pyparsing.Optional(
+    pyparsing.Literal("(").suppress() + pyparsing.Word(pyparsing.nums)("number") + pyparsing.Literal(")").suppress()
+)
 
 alteration = pyparsing.Optional(pyparsing.Or(["#", "b", "n"]))
 note = pyparsing.Group(
-    alteration("alteration") + (degree_int("degree") | string_name_note("degree")) + pyparsing.Optional(".")("dotted") + flipped + voice_track("voice")
+    alteration("alteration") + (degree_int("degree") | string_name_note("degree")) + \
+        pyparsing.Optional(".")("dotted") + flipped + voice_track("voice") + \
+        fingering_string("fingering_string") + fingering_finger("fingering_finger")
 )
 
 # chord = pyparsing.nestedExpr(content=note)
@@ -78,6 +86,7 @@ _END = pyparsing.Keyword("END")
 stop_on = _BEGIN | _SET | _MOVE | _END
 
 bar = pyparsing.Literal("||:") | pyparsing.Literal(":||") | pyparsing.Literal("||") | \
+    pyparsing.Literal("[|:") | pyparsing.Literal(":|]") | pyparsing.Literal("[|") | pyparsing.Literal("|]") | \
     pyparsing.Literal("|:") | pyparsing.Literal(":|") | pyparsing.Literal("|")
 
 commands = [
