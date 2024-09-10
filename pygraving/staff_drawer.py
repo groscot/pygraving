@@ -4,11 +4,12 @@ from math import pi
 
 from .beamed_group import BeamedGroup
 from .config import config
+from .layouts.auto import AutoLayout
+from .layouts.justified import JustifiedLayout
 from .load_svg import svg_path_to_ctx_fill
 from .mixins import HasCairoContext
 from .note import Note
 from .note_drawer import NoteDrawer
-from .staff_layout import StaffLayout
 from .symbol_drawer import SymbolDrawer
 
 current_path = pathlib.Path(os.path.dirname(os.path.abspath(__file__)))
@@ -19,9 +20,12 @@ CLEF_ORIGINAL_HEIGHT = 1000
 class StaffDrawer(HasCairoContext):
     _last_lyric_data = {0: None}
     in_group_after: bool = False
+    has_clef_alterations: bool = False
+    has_signature: bool = False
     
     def init(self):
-        self.layout = StaffLayout()
+        # self.layout = AutoLayout()
+        self.layout = JustifiedLayout()
         self.noteDrawer = NoteDrawer(self)
         self.beamedGroupHandler = BeamedGroup(self)
         self.symbolDrawer = SymbolDrawer(self)
@@ -67,11 +71,17 @@ class StaffDrawer(HasCairoContext):
         draw_clef(self.ctx)
         self.ctx.restore()
         
+    def config_clef_alterations(self, type: str, number: int):
+        self.layout.offset_origin_position_base(config("CLEF_ALTERATIONS_SPACE")*number)
+        self.has_clef_alterations = True
+    
     def place_clef_alterations(self, type: str, number: int):
+        offset = config("CLEF_ALTERATIONS_SPACE")*number
+        if self.has_signature:
+            offset += config("SIGNATURE_SPACE")*0.75
         degrees = self.layout.generate_alterations_degrees(type, number)
         for i, degree in enumerate(degrees):
-            self.draw_clef_alteration(type, config.CLEF_ALTERATIONS_SPACE*i, degree)
-        self.layout.offset_origin_position_base(config.CLEF_ALTERATIONS_SPACE*number)
+            self.draw_clef_alteration(type, config("CLEF_ALTERATIONS_SPACE")*i - offset, degree)
         
     def place_note_helper_lines(self, position, from_degree, to_degree, x_offset = 0):
         _from = min(from_degree, to_degree)
@@ -86,8 +96,8 @@ class StaffDrawer(HasCairoContext):
             self.ctx.line_to(x + delta_x, y)
             self.stroke(config.STAFF_LW)
     
-    def draw_clef_alteration(self, type: str, position: int, degree: int):
-        x = self.layout.position_to_x(position)
+    def draw_clef_alteration(self, type: str, position: float, degree: int):
+        x = self.layout.notes_start_x + position
         y = self.layout.degree_to_y(degree)
         
         self.ctx.save()
@@ -166,17 +176,22 @@ class StaffDrawer(HasCairoContext):
             self.ctx.arc(x + width/2, y - height/2, radius, 0, 2*pi)
             self.ctx.stroke()
         self.ctx.restore()
+    
+    def config_signature(self, digit_1: int = 1, digit_2: int = 1, is_C: bool = False):
+        space = config("SIGNATURE_SPACE")
+        self.layout.offset_origin_position_base(space*0.75)
+        self.has_signature = True
         
     def place_signature(self, digit_1: int = 1, digit_2: int = 1, is_C: bool = False):
-        #i) need to give the position here because the 0 position is changed
-        x = self.layout.position_to_x(-config.SIGNATURE_SPACE/3)
+        space = config("SIGNATURE_SPACE")
+        offset = space*0.75
+        x = self.layout.notes_start_x - offset - space/4
         self.ctx.translate(x, 0)
         if is_C:
             self.symbolDrawer.draw_signature_C()
         else:
             self.symbolDrawer.draw_signature_digits(digit_1, digit_2)
         self.ctx.translate(-x, 0)
-        self.layout.offset_origin_position_base(config.SIGNATURE_SPACE)
         
     def place_silence(self, position: int, duration: int):
         type = ["whole", "half", "quarter", "eighth", "sixt"][duration]
@@ -316,5 +331,5 @@ class StaffDrawer(HasCairoContext):
             getattr(self, "config_" + what)(**args)
 
     def place_registered(self):
-        for what, args in self.layout._registered:
+        for what, args in self.layout.registered:
             getattr(self, "place_" + what)(**args)

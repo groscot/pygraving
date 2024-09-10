@@ -1,27 +1,10 @@
-#===========
-#! DEPRECATED
-#! DEPRECATED
-#! DEPRECATED
-#===========
+from pygraving.config import config
+from pygraving.note import Note
 
-from .config import config
-from .note import Note
+from .commons import GenericLayout, PositionDegreeBounds
 
 
-class PositionDegreeBounds():
-    max_position = 0
-    min_degree = 0 -1 # bottom C
-    max_degree = 12 +1 # top A
-    
-    def add_position(self, position):
-        self.max_position = max(self.max_position, position)
-        
-    def add_degree(self, degree_min, degree_max=None):
-        degree_max = degree_max or degree_min
-        self.min_degree = min(self.min_degree, degree_min)
-        self.max_degree = max(self.max_degree, degree_max)
-
-class StaffLayout():
+class AutoLayout(GenericLayout):
     """
     The origin is the left side of the center staff line
     """
@@ -32,55 +15,8 @@ class StaffLayout():
     
     #---
     
-    has_voice_tracks: int = 0
     min_degree = 0 -1 # bottom C
     max_degree = 12 +1 # top A
-    
-    def __init__(self):
-        self.registered = []
-        self.staff_origin_position_base = config.STAFF_ORIGIN_POSITION_BASE
-        
-    def generate_alterations_degrees(self, type: str, number: int) -> list[int]:
-        if type == "flat":
-            min_d = 3
-            d = 6
-            skip = 3
-        if type == "sharp":
-            min_d = 7
-            d = 10
-            skip = 4
-        
-        degrees = []
-        for i in range(number):
-            degrees.append(d)
-            d = (d-min_d + skip)%7 + min_d
-        return degrees
-    
-    def note_helper_line_padding(self, include_note=True):
-        delta_x = config("NOTE_SPACE") * config.NOTE_HELPER_LINE_PADDING_COEFF
-        if include_note:
-            delta_x += config.STAFF_LINE_HEIGHT * 1/2
-        return delta_x
-    
-    def position_to_x(self, position):
-        return self.x + config("NOTE_SPACE") * (position + self.staff_origin_position_base)
-    
-    def degree_to_y(self, degree: int):
-        # this one takes as base the lower C note
-        base = -6
-        y = (base+degree)*config.STAFF_LINE_HEIGHT/2
-        return self.y - y
-    
-    def offset_origin_position_base(self, offset):
-        self.staff_origin_position_base += offset
-
-    def register(self, what, **args):
-        assert what in ["bar", "silence", "signature", "note", "chord", "beamed_group", "clef_alterations"]
-        if what == "note":
-            # print(args["note"].extras)
-            if args["note"].extras.get("voice"):
-                self.has_voice_tracks = max(self.has_voice_tracks, len(args["note"].extras.get("voice")))
-        self.registered.append((what, args))
         
     def calculate_min_max_registered(self):
         # Remark: the +/-1 are to include the bottom/top edge of the notes (0 is their center)
@@ -126,15 +62,15 @@ class StaffLayout():
             elif what == "clef_alterations":
                 degrees = self.generate_alterations_degrees(args["type"], args["number"])
                 bounds.add_degree(max(degrees)+2) #i) +2 because the # is quite high
-                max_position_offset += args["number"] * config.CLEF_ALTERATIONS_SPACE
-            elif what == "signature":
-                max_position_offset += config.SIGNATURE_SPACE
+            #     max_position_offset += args["number"] * config.CLEF_ALTERATIONS_SPACE
+            # elif what == "signature":
+            #     max_position_offset += config.SIGNATURE_SPACE
         self.min_degree = bounds.min_degree
         self.max_degree = bounds.max_degree
-        max_position = bounds.max_position + max_position_offset
+        max_position = bounds.max_position #+ max_position_offset
         return max_position, max_position_type, bounds.min_degree, bounds.max_degree
     
-    def autolayout_from_registered(self):
+    def run(self):
         max_position, max_position_type, min_degree, max_degree = self.calculate_min_max_registered()
         
         # stem_length = config("STEM_LENGTH")

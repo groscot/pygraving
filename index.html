@@ -230,8 +230,7 @@
                 <textarea name="body" rows="22"
                 class="w-full bg-white text-gray-800 py-1 px-2 border border-gray-400 rounded shadow"
                 >{% if loaded %}{{ loaded }}{% else %}BEGIN line
-SET duration 2 /* 0 = ronde, 1 = blanche, 2 = noire, etc. */
-1 2 3 4 | 5 6 7 8 |{% endif %}</textarea>
+{% endif %}</textarea>
                 <br/>
                 <br/>
                 <label class="mr-4"><input type="checkbox" id="auto-update" class="mr-2">Prévisualisation automatique</label>

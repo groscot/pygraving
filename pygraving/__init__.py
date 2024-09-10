@@ -1,7 +1,6 @@
 import cairo
 
 from .staff_drawer import StaffDrawer
-from .staff_layout import StaffLayout
 
 # from ._scoreline import ScoreLine
 

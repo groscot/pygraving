@@ -102,7 +102,7 @@ class Score:
         sizes = []
         surfaces = []
         for scoreline in self.scorelines:
-            size = scoreline.layout.autolayout_from_registered()
+            size = scoreline.layout.run()
             surface = ImageSurface(
                 FORMAT_ARGB32, int(size[0]), int(size[1])
             )
