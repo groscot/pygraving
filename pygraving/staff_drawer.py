@@ -24,8 +24,8 @@ class StaffDrawer(HasCairoContext):
     has_signature: bool = False
     
     def init(self):
-        # self.layout = AutoLayout()
-        self.layout = JustifiedLayout()
+        self.layout = AutoLayout()
+        # self.layout = JustifiedLayout()
         self.noteDrawer = NoteDrawer(self)
         self.beamedGroupHandler = BeamedGroup(self)
         self.symbolDrawer = SymbolDrawer(self)
