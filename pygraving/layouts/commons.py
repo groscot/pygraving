@@ -53,7 +53,7 @@ class GenericLayout():
         return degrees
     
     def note_helper_line_padding(self, include_note=True):
-        delta_x = config("NOTE_SPACE") * config.NOTE_HELPER_LINE_PADDING_COEFF
+        delta_x = config("NOTE_HELPER_LINE_PADDING_COEFF")
         if include_note:
             delta_x += config.STAFF_LINE_HEIGHT * 1/2
         return delta_x

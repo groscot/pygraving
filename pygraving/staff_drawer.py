@@ -61,7 +61,7 @@ class StaffDrawer(HasCairoContext):
         target_height = config.STAFF_LINE_HEIGHT * 7.
         offset = target_height * 1.65 / 7.
         scale = target_height / original_height
-        x = self.layout.x + config("NOTE_SPACE")/8
+        x = self.layout.x + config("CLEF_LEFT_MARGIN")
         y = self.layout.y - target_height + offset + 2*config.STAFF_LINE_HEIGHT
         
         # Draw

@@ -7,7 +7,7 @@ from flask import Flask, Response, render_template, request
 from pygraving.score import score_from_json
 from pygraving.state_machine import StateMachine
 
-app = Flask(__name__, template_folder='.')
+app = Flask(__name__, template_folder='./site_pages')
 
 def make_preview(body):
     machine = StateMachine()
