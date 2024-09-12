@@ -20,7 +20,8 @@ class Score:
         for key, val in params:
             setattr(self, key, val)
     
-    #i) REENABLE if we notice that we can see multiple lines in high resolution images
+    #i) REENABLE if we notice that in high resolution images
+    #i) we can see multiple lines superimposed when in the same group
     # def get_line_group_type(self, line_id: int) -> str:
     #     return self._line_group_types.get(line_id, None)
     
@@ -44,10 +45,6 @@ class Score:
         
         self.current_id += 1
         return scoreline
-    
-    def intersect_grouped_lines(self):
-        "Computes the intersection of grouped lines"
-        pass
     
     def prepare_layout_positions(self):
         "Computes the layout of the score"
@@ -112,9 +109,6 @@ class Score:
 
             ctx.set_source_rgb(0, 0, 0)
             scoreline.ctx = ctx
-            # scoreline.noteDrawer.ctx = ctx
-            # scoreline.beamedGroupHandler.ctx = ctx
-            # scoreline.symbolDrawer.ctx = ctx
             
             scoreline.place_registered()
             scoreline.draw_lines()

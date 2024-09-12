@@ -61,9 +61,9 @@ class StateMachine:
             return
         if "config" in token:
             param = token["param"]
-            value = token["value"][0]
-            print("config", param, value, type(value))
-            self.override_config[param] = value
+            value = token["value"]
+            if hasattr(config, param):
+                self.override_config[param] = value
             return
         if "bar" in token:
             self.active_scoreline.register("bar", position=self.last_position, style=token["bar"])

@@ -39,7 +39,8 @@ degree_int.setParseAction(lambda t: int(t[0])-1)
 #---
 
 
-param_with_numeric_value = pyparsing.Word(pyparsing.alphas + "_")("param") + python_int("value")
+param_with_int_value = pyparsing.Word(pyparsing.alphas + "_")("param") + python_int("value")
+param_with_numeric_value = pyparsing.Word(pyparsing.alphas + "_")("param") + (python_float | python_int)("value")
 param_with_python_value = pyparsing.Word(pyparsing.alphas + "_")("param") + python_arg("value")
 
 
@@ -91,8 +92,8 @@ bar = pyparsing.Literal("||:") | pyparsing.Literal(":||") | pyparsing.Literal("|
 
 commands = [
     _BEGIN("command") + pyparsing.Word(pyparsing.alphas)("object"),
-    _SET("command") + param_with_numeric_value,
-    _CONFIG("config") + param_with_python_value,
+    _SET("command") + param_with_int_value,
+    _CONFIG("config") + param_with_numeric_value,
     _MOVE("command") + pyparsing.Or([python_float, python_int])("amount") + pyparsing.Word(pyparsing.alphas)("direction"),
     _END("command") + pyparsing.Word(pyparsing.alphas)("object"),
     bar("bar"),

@@ -14,7 +14,7 @@
 ## cohérence générale
 
 - [x] arranger chord pour pouvoir donner des altérations aux notes
-- [ ] note pointee : la duree (pos auto) doit etre ajustee
+- [x] note pointee : la duree (pos auto) doit etre ajustee
 - [ ] note pointee : positionnement à revoir
 - [ ] lignes multiples : comment garantir que les mesures correspondent ?
 - [x] corriger les traits verticaux : pas à gauche, et à droite sans depassement apres
@@ -25,10 +25,11 @@
 
 - [ ] probleme de marge si: les notes extremes ont des alterations, ou si derniere note pointee, ou avec beamed group
 - [ ] probleme de marge si: chord do/re (1 d'écart) + silences
-- [ ] probablement vaut le coup de refactorer la logique (GROS TRUC)
+- [-] probablement vaut le coup de refactorer la logique (GROS TRUC)
 - [ ] contraindre spacing par le voice track
 
 
 ## features quality of life
 
 - [ ] mode debug qui affiche les positions etc
+- [ ] Gestion de plusieurs pages
