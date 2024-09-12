@@ -30,19 +30,45 @@ for file in files:
     })
 # === === ===
 
+# === Load the debug examples ===
+debug_examples = []
+
+if app.debug:
+    debug_file = "debug_examples.txt"
+    debug_scores = open(debug_file).read().split("\n-----\n")
+
+    for example in debug_scores:
+        debug_examples.append({
+            "name": "",
+            "value": example,
+            "base64_img": make_preview(example)
+        })
+# === === ===
+
+@app.context_processor
+def inject_debug():
+    return dict(debug=app.debug)
+
 @app.route('/')
 def index():
     load = request.args.get("load")
     loaded = score_examples_lookup.get(load, "")
-    return render_template('index.html', loaded=loaded)
+    return render_template('index.html', page="/", loaded=loaded)
 
 @app.route('/help')
 def doc():
-    return render_template('doc.html')
+    return render_template('doc.html', page="/help")
 
 @app.route('/examples')
 def examples():
-    return render_template('examples.html', examples=score_examples)
+    return render_template('examples.html', page="/examples", examples=score_examples)
+
+@app.route('/debug')
+def debug():
+    if not app.debug:
+        return "Not Found", 404
+    return render_template('examples.html', page="/debug", examples=debug_examples)
+
 
 @app.post('/draw')
 def draw():

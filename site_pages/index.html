@@ -1,246 +1,223 @@
-<html>
-<head>
-<title>Score Maker</title>
-<script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+{% extends "all_pages.html" %}
+
+{% block content %}
 <script>
-    function debounce(func, timeout = 300){
-        let timer;
-        return (...args) => {
-            clearTimeout(timer);
-            timer = setTimeout(() => { func.apply(this, args); }, timeout);
-        };
-    }
+function debounce(func, timeout = 300){
+    let timer;
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => { func.apply(this, args); }, timeout);
+    };
+}
 
-    function setPreview(data) {
-        const preview = document.querySelector('.preview');
-        preview.src = "data:image/png;base64," + data;
-    }
+function setPreview(data) {
+    const preview = document.querySelector('.preview');
+    preview.src = "data:image/png;base64," + data;
+}
 
-    function doPreview() {
-        const body = document.querySelector('textarea[name="body"]');
-        
-        fetch('/preview', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                body: body.value,
-            }),
-        })
-        .then(response => response.text())
-        .then(data => {
-            setPreview(data);
-        });
-    }
+function doPreview() {
+    const body = document.querySelector('textarea[name="body"]');
+    
+    fetch('/preview', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            body: body.value,
+        }),
+    })
+    .then(response => response.text())
+    .then(data => {
+        setPreview(data);
+    });
+}
 
-    function autoPreview() {
-        const autoUpdate = document.getElementById('auto-update');
-        if (autoUpdate.checked) {
-            doPreview();
-        }
-    }
-
-    function insertAtCursor(text) {
-        const textarea = document.querySelector('textarea[name="body"]');
-        textarea.focus();
-        const decodedText = text.replace(/\\n/g, '\n');
-        document.execCommand('insertText', false, decodedText);
-    }
-
-    function wrapSelection(before, after) {
-        const textarea = document.querySelector('textarea[name="body"]');
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
-        const selection = textarea.value.substring(start, end);
-        const replacement = before + selection + after;
-        textarea.focus();
-        document.execCommand('insertText', false, replacement);
-    }
-
-    function insertNote(note) {
-        const modifier = document.querySelector('input[name="modifier"]:checked').value;
-        const inverted = document.querySelector('input[name="inverted"]').checked;
-        const gamme = parseInt(document.getElementById('gammeInput').value, 10);
-        
-        let modifiedNote = note;
-        
-        if (modifier) {
-            modifiedNote = modifier + modifiedNote;
-        }
-        
-        if (gamme !== 0) {
-            modifiedNote += gamme > 0 ? '+'.repeat(gamme) : '-'.repeat(Math.abs(gamme));
-        }
-        
-        if (inverted) {
-            modifiedNote += '!';
-        }
-        
-        insertAtCursor(modifiedNote + ' ');
-    }
-
-    const debouncedPreview = debounce(autoPreview, 200);
-
-    document.addEventListener('DOMContentLoaded', function() {
+function autoPreview() {
+    const autoUpdate = document.getElementById('auto-update');
+    if (autoUpdate.checked) {
         doPreview();
+    }
+}
 
-        const body = document.querySelector('textarea[name="body"]');
-        body.addEventListener('input', debouncedPreview);
+function insertAtCursor(text) {
+    const textarea = document.querySelector('textarea[name="body"]');
+    textarea.focus();
+    const decodedText = text.replace(/\\n/g, '\n');
+    document.execCommand('insertText', false, decodedText);
+}
 
-        const insertForm = document.getElementById('insertForm');
+function wrapSelection(before, after) {
+    const textarea = document.querySelector('textarea[name="body"]');
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selection = textarea.value.substring(start, end);
+    const replacement = before + selection + after;
+    textarea.focus();
+    document.execCommand('insertText', false, replacement);
+}
 
-        const keywordButtons = insertForm.querySelectorAll('.keyword-btn');
-        keywordButtons.forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                insertAtCursor(this.dataset.insert);
-            });
-        });
+function insertNote(note) {
+    const modifier = document.querySelector('input[name="modifier"]:checked').value;
+    const inverted = document.querySelector('input[name="inverted"]').checked;
+    const gamme = parseInt(document.getElementById('gammeInput').value, 10);
+    
+    let modifiedNote = note;
+    
+    if (modifier) {
+        modifiedNote = modifier + modifiedNote;
+    }
+    
+    if (gamme !== 0) {
+        modifiedNote += gamme > 0 ? '+'.repeat(gamme) : '-'.repeat(Math.abs(gamme));
+    }
+    
+    if (inverted) {
+        modifiedNote += '!';
+    }
+    
+    insertAtCursor(modifiedNote + ' ');
+}
 
-        const durationButtons = insertForm.querySelectorAll('.duration-btn');
-        durationButtons.forEach(button => {
-            button.addEventListener('click', function(e) {
-                insertAtCursor(this.dataset.insert);
-            });
-        });
+const debouncedPreview = debounce(autoPreview, 200);
 
-        document.querySelectorAll('input[name="modifier"]').forEach(radio => {
-            radio.addEventListener('click', function() {
-                // If this radio button was already checked, uncheck it and check the normal modifier
-                if (this === previousChecked) {
-                    this.checked = false;
-                    document.getElementById('modifier-normal').checked = true;
-                    previousChecked = null;
-                } else {
-                    // Otherwise, update the previously checked radio
-                    previousChecked = this;
-                }
-            });
+document.addEventListener('DOMContentLoaded', function() {
+    doPreview();
+
+    const body = document.querySelector('textarea[name="body"]');
+    body.addEventListener('input', debouncedPreview);
+
+    const insertForm = document.getElementById('insertForm');
+
+    const keywordButtons = insertForm.querySelectorAll('.keyword-btn');
+    keywordButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            insertAtCursor(this.dataset.insert);
         });
     });
 
-    function decreaseGamme() {
-        var input = document.getElementById('gammeInput');
-        input.value = parseInt(input.value, 10) - 1;
-    }
-    function increaseGamme() {
-        var input = document.getElementById('gammeInput');
-        input.value = parseInt(input.value, 10) + 1;
-    }
+    const durationButtons = insertForm.querySelectorAll('.duration-btn');
+    durationButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            insertAtCursor(this.dataset.insert);
+        });
+    });
 
-    // Store the previously checked radio button
-    let previousChecked = null;
+    document.querySelectorAll('input[name="modifier"]').forEach(radio => {
+        radio.addEventListener('click', function() {
+            // If this radio button was already checked, uncheck it and check the normal modifier
+            if (this === previousChecked) {
+                this.checked = false;
+                document.getElementById('modifier-normal').checked = true;
+                previousChecked = null;
+            } else {
+                // Otherwise, update the previously checked radio
+                previousChecked = this;
+            }
+        });
+    });
+});
+
+function decreaseGamme() {
+    var input = document.getElementById('gammeInput');
+    input.value = parseInt(input.value, 10) - 1;
+}
+function increaseGamme() {
+    var input = document.getElementById('gammeInput');
+    input.value = parseInt(input.value, 10) + 1;
+}
+
+// Store the previously checked radio button
+let previousChecked = null;
 </script>
-</head>
-<body class="p-4">
-    <article class="prose lg:prose-xl">
-        <h1>Score Maker</h1>
-    </article>
-    <div class="text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
-        <ul class="flex flex-wrap -mb-px">
-            <li class="me-2">
-                <a href="/" class="inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-500 dark:border-blue-500" aria-current="page">Accueil</a>
-            </li>
-            <li class="me-2">
-                <a href="/help" class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">Aide</a>
-            </li>
-            <li class="me-2">
-                <a href="/examples" class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">Exemples</a>
-            </li>
-            <li>
-                <a class="inline-block p-4 text-gray-400 rounded-t-lg cursor-not-allowed dark:text-gray-500">Configuration (à venir)</a>
-            </li>
-        </ul>
-    </div>
-    <div class="">
-    <div class="my-0 p-2 border-b sticky top-0 bg-white flex gap-4 justify-between">
-        <form id="insertForm" class="m-0">
-            <input type="button" value="+ Portée" data-insert="\nBEGIN line\n" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
-            <input type="button" value="+ Instrument" data-insert="\nBEGIN grouped\n" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
-            |
-            <span class="inline-flex items-center ml-4 mr-2">Durée active</span>
-            <div class="inline-flex flex-wrap">
-                <label class="inline-flex items-center m-0 cursor-pointer">
-                    <input type="radio" name="duration" value="#" class="hidden peer duration-btn" data-insert="SET duration 0\n">
-                    <span class="px-2 py-1 text-sm border-r border-gray-400 rounded-l-md bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Ronde</span>
-                </label>
-                <label class="inline-flex items-center m-0 cursor-pointer">
-                    <input type="radio" name="duration" value="b" class="hidden peer duration-btn" data-insert="SET duration 1\n">
-                    <span class="px-2 py-1 text-sm border-r border-gray-400 bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Blanche</span>
-                </label>
-                <label class="inline-flex items-center m-0 cursor-pointer">
-                    <input type="radio" name="duration" value="b" class="hidden peer duration-btn" data-insert="SET duration 2\n" checked="checked">
-                    <span class="px-2 py-1 text-sm border-r border-gray-400 bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Noire</span>
-                </label>
-                <label class="inline-flex items-center m-0 cursor-pointer">
-                    <input type="radio" name="duration" value="n" class="hidden peer duration-btn" data-insert="SET duration 3\n">
-                    <span class="px-2 py-1 text-sm rounded-r-md bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Croche</span>
-                </label>
-            </div>
-            |
-            <input type="button" value="Silence" data-insert="_" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
-            <input type="button" value="Paroles" data-insert="[]" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
-            |
-            <input type="button" value="Accord" onclick="wrapSelection('(', ')')" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
-            <input type="button" value="Groupe" onclick="wrapSelection('[', ']')" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
-            <br>
-            <span class="inline-flex items-center mr-4 mb-2 text-gray-800 font-semibold">Note</span>
-            <div class="inline-flex flex-wrap">
-                <input type="radio" name="modifier" value="" id="modifier-normal" class="hidden" checked="checked">
-                <label class="inline-flex items-center m-0 cursor-pointer">
-                    <input type="radio" name="modifier" value="#" class="hidden peer">
-                    <span class="px-2 py-1 text-sm border-r border-gray-400 rounded-l-md bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Dièse #</span>
-                </label>
-                <label class="inline-flex items-center m-0 cursor-pointer">
-                    <input type="radio" name="modifier" value="b" class="hidden peer">
-                    <span class="px-2 py-1 text-sm border-r border-gray-400 bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Bémol b</span>
-                </label>
-                <label class="inline-flex items-center m-0 cursor-pointer">
-                    <input type="radio" name="modifier" value="n" class="hidden peer">
-                    <span class="px-2 py-1 text-sm rounded-r-md bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Bécart</span>
-                </label>
-            </div>
-            <div class="inline-flex flex-wrap">
-                <label class="inline-flex items-center m-0 cursor-pointer">
-                    <input type="checkbox" name="inverted" class="hidden peer">
-                    <span class="px-2 py-1 text-sm rounded-md bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Inversée</span>
-                </label>
-            </div>
-            <div class="inline-flex flex-wrap">
-                <span class="inline-flex items-center ml-4 mr-2">Gamme</span>
-                <input type="button" value="-" onclick="decreaseGamme()" class="px-2 py-1 text-sm rounded-md bg-gray-100 hover:bg-gray-200 text-gray-700 ">
-                <input type="text" value="0" class="px-2 py-1 text-sm rounded-md text-gray-700 w-8 text-center" name="gamme" id="gammeInput">
-                <input type="button" value="+" onclick="increaseGamme()" class="px-2 py-1 text-sm rounded-md bg-gray-100 hover:bg-gray-200 text-gray-700 ">
-            </div>
-            <div class="inline-flex flex-wrap">
-                <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('do')">Do</button>
-                <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('re')">Ré</button>
-                <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('mi')">Mi</button>
-                <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('fa')">Fa</button>
-                <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('sol')">Sol</button>
-                <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('la')">La</button>
-                <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('si')">Si</button>
-            </div>
-        </form>
-        <div class="flex flex-col">
-            <label class="mr-4">
-                <input type="checkbox" id="auto-update" class="mr-2" checked>Prévisualisation automatique
+<div class="">
+<div class="my-0 p-2 border-b sticky top-0 bg-white flex gap-4 justify-between">
+    <form id="insertForm" class="m-0">
+        <input type="button" value="+ Portée" data-insert="\nBEGIN line\n" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+        <input type="button" value="+ Instrument" data-insert="\nBEGIN grouped\n" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+        |
+        <span class="inline-flex items-center ml-4 mr-2">Durée active</span>
+        <div class="inline-flex flex-wrap">
+            <label class="inline-flex items-center m-0 cursor-pointer">
+                <input type="radio" name="duration" value="#" class="hidden peer duration-btn" data-insert="SET duration 0\n">
+                <span class="px-2 py-1 text-sm border-r border-gray-400 rounded-l-md bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Ronde</span>
             </label>
-            <input type="button" onclick="doPreview();" value="Générer" class="bg-blue-600 hover:bg-blue-700 text-blue-50 font-semibold py-2 px-4 border border-blue-400 rounded shadow">
+            <label class="inline-flex items-center m-0 cursor-pointer">
+                <input type="radio" name="duration" value="b" class="hidden peer duration-btn" data-insert="SET duration 1\n">
+                <span class="px-2 py-1 text-sm border-r border-gray-400 bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Blanche</span>
+            </label>
+            <label class="inline-flex items-center m-0 cursor-pointer">
+                <input type="radio" name="duration" value="b" class="hidden peer duration-btn" data-insert="SET duration 2\n" checked="checked">
+                <span class="px-2 py-1 text-sm border-r border-gray-400 bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Noire</span>
+            </label>
+            <label class="inline-flex items-center m-0 cursor-pointer">
+                <input type="radio" name="duration" value="n" class="hidden peer duration-btn" data-insert="SET duration 3\n">
+                <span class="px-2 py-1 text-sm rounded-r-md bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Croche</span>
+            </label>
         </div>
+        |
+        <input type="button" value="Silence" data-insert="_" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+        <input type="button" value="Paroles" data-insert="[]" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+        |
+        <input type="button" value="Accord" onclick="wrapSelection('(', ')')" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+        <input type="button" value="Groupe" onclick="wrapSelection('[', ']')" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+        <br>
+        <span class="inline-flex items-center mr-4 mb-2 text-gray-800 font-semibold">Note</span>
+        <div class="inline-flex flex-wrap">
+            <input type="radio" name="modifier" value="" id="modifier-normal" class="hidden" checked="checked">
+            <label class="inline-flex items-center m-0 cursor-pointer">
+                <input type="radio" name="modifier" value="#" class="hidden peer">
+                <span class="px-2 py-1 text-sm border-r border-gray-400 rounded-l-md bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Dièse #</span>
+            </label>
+            <label class="inline-flex items-center m-0 cursor-pointer">
+                <input type="radio" name="modifier" value="b" class="hidden peer">
+                <span class="px-2 py-1 text-sm border-r border-gray-400 bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Bémol b</span>
+            </label>
+            <label class="inline-flex items-center m-0 cursor-pointer">
+                <input type="radio" name="modifier" value="n" class="hidden peer">
+                <span class="px-2 py-1 text-sm rounded-r-md bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Bécart</span>
+            </label>
+        </div>
+        <div class="inline-flex flex-wrap">
+            <label class="inline-flex items-center m-0 cursor-pointer">
+                <input type="checkbox" name="inverted" class="hidden peer">
+                <span class="px-2 py-1 text-sm rounded-md bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Inversée</span>
+            </label>
+        </div>
+        <div class="inline-flex flex-wrap">
+            <span class="inline-flex items-center ml-4 mr-2">Gamme</span>
+            <input type="button" value="-" onclick="decreaseGamme()" class="px-2 py-1 text-sm rounded-md bg-gray-100 hover:bg-gray-200 text-gray-700 ">
+            <input type="text" value="0" class="px-2 py-1 text-sm rounded-md text-gray-700 w-8 text-center" name="gamme" id="gammeInput">
+            <input type="button" value="+" onclick="increaseGamme()" class="px-2 py-1 text-sm rounded-md bg-gray-100 hover:bg-gray-200 text-gray-700 ">
+        </div>
+        <div class="inline-flex flex-wrap">
+            <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('do')">Do</button>
+            <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('re')">Ré</button>
+            <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('mi')">Mi</button>
+            <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('fa')">Fa</button>
+            <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('sol')">Sol</button>
+            <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('la')">La</button>
+            <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('si')">Si</button>
+        </div>
+    </form>
+    <div class="flex flex-col">
+        <label class="mr-4">
+            <input type="checkbox" id="auto-update" class="mr-2" checked>Prévisualisation automatique
+        </label>
+        <input type="button" onclick="doPreview();" value="Générer" class="bg-blue-600 hover:bg-blue-700 text-blue-50 font-semibold py-2 px-4 border border-blue-400 rounded shadow">
     </div>
-    <div class="lg:grid grid-cols-2">
-        <div class="bg-gray-100 p-4 m-2">
-            <textarea name="body" rows="22"
-            class="w-full bg-white text-gray-800 py-1 px-2 border border-gray-400 rounded shadow"
-            >{% if loaded %}{{ loaded }}{% else %}BEGIN line
+</div>
+<div class="lg:grid grid-cols-2">
+    <div class="bg-gray-100 p-4 m-2">
+        <textarea name="body" rows="22"
+        class="w-full bg-white text-gray-800 py-1 px-2 border border-gray-400 rounded shadow"
+        >{% if loaded %}{{ loaded }}{% else %}BEGIN line
 {% endif %}</textarea>
-        </div>
-        <div class="border p-4 m-2 shadow">
-            <img class="preview" src="" alt="" class="max-w-full">
-        </div>
     </div>
+    <div class="border p-4 m-2 shadow">
+        <img class="preview" src="" alt="" class="max-w-full">
     </div>
-</body>
-</html>
+</div>
+</div>
+{% endblock %}

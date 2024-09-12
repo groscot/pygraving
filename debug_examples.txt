@@ -1,0 +1,51 @@
+CONFIG NOTE_SPACE 1
+BEGIN line
+| | | | | | | |]
+
+-----
+
+CONFIG NOTE_SPACE 2
+BEGIN line
+| | | | | | | |]
+
+-----
+
+CONFIG NOTE_SPACE 4
+BEGIN line
+| | | | | | | |]
+
+-----
+
+BEGIN line
+SET clef_sharp 1
+do[Je|Tu] bre[vous] nmi[-drais] #fa #fa! |
+SET duration 0 _
+SET duration 1 _
+SET duration 2 _
+SET duration 3 _
+SET duration 4 _
+
+-----
+
+BEGIN line
+[mi+ si((2)) sol si mi(1) sol] |
+[mi+ si sol si mi(1) sol]!
+
+-----
+
+BEGIN line
+si((1)) si((2)) si((3)) si((4)) si((5)) si((6))  |
+si((2))
+MOVE 1 back
+do
+
+-----
+
+BEGIN line
+SET clef_flat 3
+SIGNATURE 3 4
+(mi- la- re sol si mi+)
+
+-----
+
+BEGIN line
