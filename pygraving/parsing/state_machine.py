@@ -1,9 +1,9 @@
 # from enum import Enum
 
-from .config import config
-from .note import Note
-from .parser import parse_input
-from .score import Score
+from ..config import config
+from ..note import Note
+from ..score import Score
+from . import parse_input
 
 # class State(Enum):
 #     INIT = 0
@@ -29,6 +29,8 @@ class StateMachine:
         self.score = score
         self.active_duration = 2
         self.active_scoreline = None
+        self.selected_object = None
+        self.selected_type = None
         self.last_position = 0 #! WARNING will be problematic if multiple lines and switching between them
     
     def __call__(self, text_input: str):
@@ -133,9 +135,72 @@ class StateMachine:
                 self.active_scoreline.register(what, **args)
             except:
                 raise ValueError("Unknown object for PLACE: " + what)
+        elif token["command"] == "SELECT":
+            return self.process_select(token)
+        elif token["command"] == "TRANSLATE":
+            x = token["x"]
+            y = token["y"]
+            if self.selected_object is None:
+                raise ValueError("No object selected for translation")
+            note = self.selected_object
+            note.selection[self.selected_type] |= {
+                "x": x,
+                "y": y,
+            }
         else:
             raise ValueError("Unknown command: " + token["command"])
-        
+    
+    def process_select(self, token):
+        """What can be selected:
+        - note modifier
+        - note fingering
+        - silence
+        - in the future: slur, tie, etc.
+        Basically symbols that are not part of the note itself, but are related to it.
+        """
+        target = token["object"]
+        if target.startswith("(("):
+            target_type = "fingering_string"
+            target_value = int(target[2])
+        elif target.startswith("("):
+            target_type = "fingering_finger"
+            target_value = int(target[1])
+        elif target == "_":
+            target_type = "silence"
+            target_value = None
+        elif target == ".":
+            target_type = "dot"
+            target_value = None
+        else:
+            target_type = "modifier"
+            target_value = target
+        for what, args in reversed(self.active_scoreline.layout.registered):
+            if what not in ["note", "chord", "silence"]:
+                continue
+            if what == "note":
+                note: Note = args["note"]
+                success = self.inspect_note_for_selection(note, target_type, target_value)
+                if success:
+                    self.selected_object = note
+                    self.selected_type = target_type
+                    note.selection[target_type] = {
+                        "value": target_value,
+                    }
+                    return
+            # if target in note.extras:
+            #     note.extras[target] = True
+            #     return
+    
+    def inspect_note_for_selection(self, note: Note, target_type: str, target_value: str|int|None):
+        if target_type.startswith("fingering"):
+            return note.extras.get(target_type, None) == target_value
+        if target_type == "dot":
+            return note.is_dotted
+        if target_type == "modifier":
+            return target_value in note.modifiers
+        if target_type == "silence":
+            raise NotImplementedError("Silence selection not implemented")
+    
     def process_note(self, token):
         note = Note.from_token(token["note"])
         note.duration = self.active_duration

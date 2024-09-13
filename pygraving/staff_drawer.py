@@ -135,47 +135,6 @@ class StaffDrawer(HasCairoContext):
             y2 = self.layout.degree_to_y(7)
             self.symbolDrawer.draw_dot(x + delta_x * delta_sign, y1)
             self.symbolDrawer.draw_dot(x + delta_x * delta_sign, y2)
-        
-    def place_dot(self, position: int, degree: int):
-        x = self.layout.position_to_x(position)
-        y = self.layout.degree_to_y(degree)
-        
-        x += config("NOTE_ELLIPSE_BASE_WIDTH") / 2 + config("DOT_X_OFFSET")
-        if (2 <= degree <= 10) and (degree%2 == 0):
-            y += config("DOT_Y_OFFSET")
-        self.symbolDrawer.draw_dot(x, y)
-        
-    def place_fingering(self, position: int, degree: int, fingering: int, circled: bool):
-        x = self.layout.position_to_x(position)
-        
-        if circled:
-            degree = -2
-        else:
-            degree = degree + 0.66 # 2/3 to prevent perfect alignment with grid ("collision")
-        y = self.layout.degree_to_y(degree) 
-        
-        self.ctx.save()
-        self.ctx.select_font_face(config.FINGERING_FONT_FACE)
-        self.ctx.set_font_size(config("FINGERING_RELATIVE_FONT_SIZE"))
-        # width = self.ctx.text_extents(str(fingering))[2]
-        text_extents = self.ctx.text_extents(str(fingering))
-        width = text_extents[2]
-        height = text_extents[3]
-        x -= width/2
-        
-        if not circled:
-            x -= config("NOTE_ELLIPSE_BASE_WIDTH")
-        
-        self.ctx.move_to(x, y)
-        self.ctx.show_text(str(fingering))
-        self.ctx.new_path()
-        
-        if circled:
-            self.ctx.set_line_width(config.FINGERING_LW)
-            radius = config("FINGERING_RELATIVE_FONT_SIZE")/2
-            self.ctx.arc(x + width/2, y - height/2, radius, 0, 2*pi)
-            self.ctx.stroke()
-        self.ctx.restore()
     
     def config_signature(self, digit_1: int = 1, digit_2: int = 1, is_C: bool = False):
         space = config("SIGNATURE_SPACE")
@@ -205,15 +164,10 @@ class StaffDrawer(HasCairoContext):
         voice_duration = note.extras.get("voice_duration", None)
         hyphen_before = note.extras.get("hyphen_before", False)
         
-        fingering_string = note.extras.get("fingering_string", None)
-        fingering_finger = note.extras.get("fingering_finger", None)
-        
         x = self.layout.position_to_x(position)
         y = self.layout.degree_to_y(note.degree)
         
         self.noteDrawer.draw_at(x, y, note)
-        if "." in note.modifiers:
-            self.place_dot(position, note.degree)
         
         helper_line_x_offset = 0
         if note.is_opposite_x:
@@ -229,12 +183,6 @@ class StaffDrawer(HasCairoContext):
             for track, hyphen in zip(voice, hyphen_before):
                 self.place_voice(track_i, position, note.duration, voice_duration, track, hyphen)
                 track_i += 1
-        
-        if fingering_finger is not None:
-            self.place_fingering(position, note.degree, fingering_finger, False)
-        
-        if fingering_string is not None:
-            self.place_fingering(position, note.degree, fingering_string, True)
     
     # def place_note(
     #     self, position: int, degree: int, duration: int,

@@ -15,6 +15,7 @@ class Note:
         self.modifiers = modifiers
         self.stem_length = stem_length
         self.is_opposite_x = is_opposite_x
+        self.selection = {}
         self._has_stem = True
         self.extras = {key: val for key, val in kwargs.items() if not hasattr(self, key)}
 
@@ -58,6 +59,9 @@ class Note:
         elif "n" in self.modifiers:
             return "natural"
         return None
+
+    def selection_translation(self, key, value):
+        return self.selection.get(key, {}).get(value, 0) * config.STAFF_LINE_HEIGHT
 
     @classmethod
     def from_token(cls, token):

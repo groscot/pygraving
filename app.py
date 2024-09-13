@@ -4,8 +4,8 @@ import os
 
 from flask import Flask, Response, render_template, request
 
+from pygraving.parsing.state_machine import StateMachine
 from pygraving.score import score_from_json
-from pygraving.state_machine import StateMachine
 
 app = Flask(__name__, template_folder='./site_pages')
 

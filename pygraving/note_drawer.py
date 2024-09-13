@@ -32,6 +32,13 @@ DRAW_ALTERATION = {
     "natural": draw_natural
 }
 
+ALTERATION_SYMBOLS_TO_NAME = {
+    "#": "sharp",
+    "b": "flat",
+    "n": "natural",
+    ".":  "dotted",
+}
+
 def resolve_align(width: float, align: str) -> float:
     if align == "c":
         return -width/2
@@ -118,7 +125,37 @@ class NoteDrawer(HasParentCairoContext):
         self.ctx.scale(scale, scale*flip_y)
         draw_curl(self.ctx)
         self.ctx.restore()
+    
+    def draw_fingering(self, x: float, degree: int, fingering: int, circled: bool):
+        if circled:
+            degree = -2
+        else:
+            degree = degree + 0.66 # 2/3 to prevent perfect alignment with grid (a.k.a. "collision")
+        y = self.parent.layout.degree_to_y(degree) 
         
+        self.ctx.save()
+        self.ctx.select_font_face(config.FINGERING_FONT_FACE)
+        self.ctx.set_font_size(config("FINGERING_RELATIVE_FONT_SIZE"))
+        # width = self.ctx.text_extents(str(fingering))[2]
+        text_extents = self.ctx.text_extents(str(fingering))
+        width = text_extents[2]
+        height = text_extents[3]
+        x -= width/2
+        
+        if not circled:
+            x -= config("NOTE_ELLIPSE_BASE_WIDTH")
+        
+        self.ctx.move_to(x, y)
+        self.ctx.show_text(str(fingering))
+        self.ctx.new_path()
+        
+        if circled:
+            self.ctx.set_line_width(config.FINGERING_LW)
+            radius = config("FINGERING_RELATIVE_FONT_SIZE")/2
+            self.ctx.arc(x + width/2, y - height/2, radius, 0, 2*pi)
+            self.ctx.stroke()
+        self.ctx.restore()
+    
     def draw_at(self, x: int, y: int, note: Note):
         self.ctx.save()
         self.ctx.translate(x, y)
@@ -127,10 +164,50 @@ class NoteDrawer(HasParentCairoContext):
         if note.has_stem:
             self.draw_stem(note)
         
+        # selection = note.get_active_selection()
+        selection = note.selection
+        print("selection", selection)
+        
+        # get_active_selection(self):
+        # if "modifier" in self.selection:
+        #     return ALTERATION_SYMBOLS_TO_NAME.get(self.selection["modifier"].get("value", ""), None)
+        # if self.selection.get("target_type", "") == "fingering_finger":
+        #     return "fingering_finger"
+        # if self.selection.get("target_type", "") == "fingering_string":
+        #     return "fingering_string"
+        # return None
+        
         alteration = note.get_alteration()
         if alteration:
-            self.parent.symbolDrawer.draw_alteration(alteration, align="r", x_offset=alteration_x_offset)
+            selected_alteration = "modifier" in selection and \
+                ALTERATION_SYMBOLS_TO_NAME[selection["modifier"]["value"]] == alteration
+            is_special_color = selected_alteration and config.show_debug("show_selected_object")
+            with self.conditional_translation(selected_alteration, note.selection_translation("modifier", "x"), note.selection_translation("modifier", "y")):
+                with self.conditional_color(is_special_color, 0,0,1):
+                    self.parent.symbolDrawer.draw_alteration(alteration, align="r", x_offset=alteration_x_offset)
+        
+        if note.is_dotted:
+            x_dot = config("NOTE_ELLIPSE_BASE_WIDTH") / 2 + config("DOT_X_OFFSET")
+            y_dot = 0
+            if (2 <= note.degree <= 10) and (note.degree%2 == 0):
+                y_dot += config("DOT_Y_OFFSET")
+            with self.conditional_translation("dot" in selection, note.selection_translation("dot", "x"), note.selection_translation("dot", "y")):
+                with self.conditional_color("dot" in selection, 0,0,1):
+                    self.parent.symbolDrawer.draw_dot(x_dot, y_dot)
         
         self.draw_centered_ellipse(note)
-        
         self.ctx.restore()
+        
+        #i) placed after ctx.restore() because the methods apply transformations
+        
+        fingering_finger = note.extras.get("fingering_finger", None)
+        if fingering_finger is not None:
+            with self.conditional_translation("fingering_finger" in selection, note.selection_translation("fingering_finger", "x"), note.selection_translation("fingering_finger", "y")):
+                with self.conditional_color("fingering_finger" in selection, 0,0,1):
+                    self.draw_fingering(x, note.degree, fingering_finger, False)
+        
+        fingering_string = note.extras.get("fingering_string", None)
+        if fingering_string is not None:
+            with self.conditional_translation("fingering_string" in selection, note.selection_translation("fingering_string", "x"), note.selection_translation("fingering_string", "y")):
+                with self.conditional_color("fingering_string" in selection, 0,0,1):
+                    self.draw_fingering(x, note.degree, fingering_string, True)

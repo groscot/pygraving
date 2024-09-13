@@ -33,3 +33,9 @@
 
 - [ ] mode debug qui affiche les positions etc
 - [ ] Gestion de plusieurs pages
+
+
+# Regex pour migrer [voice] en "voice"
+
+\[([^\[\]]+)\|([^\[\]]+)\]
+"$1" "$2"

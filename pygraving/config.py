@@ -54,9 +54,10 @@ class Config:
     FINGERING_RELATIVE_FONT_SIZE = 1.5
     
     # Debug
-    DEBUG = False
+    DEBUG = True
     DEBUG_FLAGS = {
         "show_beam_block_note": True,
+        "show_selected_object": True,
     }
     
     def __call__(self, param: str = "") -> float:

@@ -3,9 +3,9 @@
 BEGIN line
 SIGNATURE C
 
-[do[Le|Ce] re[vrai|tra]] [mi[mu|-vail] fa[-si|fas]]
-[sol[-cien|-ti] la[ré|-dieux]] [si[-pète] do+[a]] |
-si[-vec] sol[ar] sol[-deur] _ |
+[do"Le" "Ce" re"vrai" "tra"] [mi"mu" "-vail" fa"-si" "fas"]
+[sol"-cien" "-ti" la"ré" "-dieux"] [si"-pète" do+"a"] |
+si"-vec" sol"ar" sol"-deur" _ |
 
 
 BEGIN line
@@ -14,6 +14,6 @@ SIGNATURE C
 /* ATTENTION pour l'instant un texte trop long
 peut créer des problèmes d'espacement, comme ici */
 
-[si-[De] do[sa]] [re[-van] mi[-tes]]
-[fa[gammes] sol[et]] [la[des] si[ar]] |
-sol[-pè] mi[-è] mi[-ges] _ |]
+[si-"De" do"sa"] [re"-van" mi"-tes"]
+[fa"gammes" sol"et"] [la"des" si"ar"] |
+sol"-pè" mi"-è" mi"-ges" _ |]

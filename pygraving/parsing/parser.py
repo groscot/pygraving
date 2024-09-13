@@ -8,25 +8,13 @@ With pyparsing==2.4.7, the methods and attributes should be in camelCase, NOT IN
 
 import pyparsing
 
+from .primitives import *
+
 string_name_note = pyparsing.Combine((pyparsing.Literal("do") | pyparsing.Literal("re") | pyparsing.Literal("mi") | \
     pyparsing.Literal("fa") | pyparsing.Literal("sol") | pyparsing.Literal("la") | \
         pyparsing.Literal("si")) + pyparsing.Optional(pyparsing.OneOrMore("+")) + pyparsing.Optional(pyparsing.OneOrMore("-")))
 
-# Argument parsable into a python string, int, float or bool
-# for each one, includes the casting function in the parse action
-#* place string last, because of the order of matching evaluation
 
-python_int = pyparsing.Combine(pyparsing.Optional("-") + pyparsing.Word(pyparsing.nums))
-python_float = pyparsing.Combine(pyparsing.Word(pyparsing.nums) + "." + pyparsing.Word(pyparsing.nums))
-python_bool = pyparsing.Keyword("True") | pyparsing.Keyword("False")
-python_list = pyparsing.Literal("[").suppress() + pyparsing.delimitedList(python_float | python_int | python_bool) + pyparsing.Literal("]").suppress()
-python_string = pyparsing.Word(pyparsing.alphanums + "_")
-
-python_bool.setParseAction(lambda t: t[0] == "True")
-python_int.setParseAction(pyparsing.tokenMap(int))
-python_float.setParseAction(pyparsing.tokenMap(float))
-
-python_arg = python_float | python_int | python_bool | python_list | python_string
 
 
 #---
@@ -39,9 +27,6 @@ degree_int.setParseAction(lambda t: int(t[0])-1)
 #---
 
 
-param_with_int_value = pyparsing.Word(pyparsing.alphas + "_")("param") + python_int("value")
-param_with_numeric_value = pyparsing.Word(pyparsing.alphas + "_")("param") + (python_float | python_int)("value")
-param_with_python_value = pyparsing.Word(pyparsing.alphas + "_")("param") + python_arg("value")
 
 
 flipped = pyparsing.Optional("!")("flipped")
@@ -59,10 +44,15 @@ fingering_finger = pyparsing.Optional(
     pyparsing.Literal("(").suppress() + pyparsing.Word(pyparsing.nums)("number") + pyparsing.Literal(")").suppress()
 )
 
+newvoicetrack = pyparsing.QuotedString(quote_char='"')
+newvoicetrack.setParseAction(lambda t: t[0].strip())
+newvoice = pyparsing.Optional(pyparsing.OneOrMore(newvoicetrack))("voice")
+
+
 alteration = pyparsing.Optional(pyparsing.Or(["#", "b", "n"]))
 note = pyparsing.Group(
     alteration("alteration") + (degree_int("degree") | string_name_note("degree")) + \
-        pyparsing.Optional(".")("dotted") + flipped + voice_track("voice") + \
+        pyparsing.Optional(".")("dotted") + flipped + newvoice("voice") + \
         fingering_string("fingering_string") + fingering_finger("fingering_finger")
 )
 
@@ -84,7 +74,13 @@ _SET = pyparsing.Keyword("SET")
 _MOVE = pyparsing.Keyword("MOVE")
 _END = pyparsing.Keyword("END")
 
-stop_on = _BEGIN | _SET | _MOVE | _END
+_SELECT = pyparsing.Keyword("SELECT")
+_TRANSLATE = pyparsing.Keyword("TRANSLATE")
+
+stop_on = _BEGIN | _SET | _MOVE | _END | _CONFIG | _SELECT | _TRANSLATE
+
+select = _SELECT("command") + pyparsing.QuotedString(quote_char="'")("object")
+translate = _TRANSLATE("command") + python_number("x") + python_number("y")
 
 bar = pyparsing.Literal("||:") | pyparsing.Literal(":||") | pyparsing.Literal("||") | \
     pyparsing.Literal("[|:") | pyparsing.Literal(":|]") | pyparsing.Literal("[|") | pyparsing.Literal("|]") | \
@@ -96,6 +92,8 @@ commands = [
     _CONFIG("config") + param_with_numeric_value,
     _MOVE("command") + pyparsing.Or([python_float, python_int])("amount") + pyparsing.Word(pyparsing.alphas)("direction"),
     _END("command") + pyparsing.Word(pyparsing.alphas)("object"),
+    select,
+    translate,
     bar("bar"),
     chord("chord"),
     beam("beam"),
@@ -105,12 +103,3 @@ commands = [
     pyparsing.Keyword("PLACE")("command") + pyparsing.Word(pyparsing.alphas)("object") + \
         pyparsing.OneOrMore(param_with_python_value, stopOn=stop_on)("arguments"),
 ]
-
-# combine all commands into a single command
-command = commands.pop(0)
-for c in commands:
-    command = command | c
-phrase = pyparsing.OneOrMore(pyparsing.Group(command)).ignore(pyparsing.cStyleComment)
-
-def parse_input(text: str) -> pyparsing.ParseResults:
-    return phrase.parseString(text)
