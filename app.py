@@ -2,12 +2,18 @@ import base64
 import json
 import os
 
-from flask import Flask, Response, render_template, request
+import markdown
+from flask import (Flask, Response, render_template, request,
+                   send_from_directory)
+from markupsafe import Markup
 
 from pygraving.parsing.state_machine import StateMachine
 from pygraving.score import score_from_json
 
 app = Flask(__name__, template_folder='./site_pages')
+
+MAKE_DEBUG_EXAMPLES = app.debug
+MAKE_DOC_EXAMPLES = True
 
 def make_preview(body):
     machine = StateMachine()
@@ -30,10 +36,8 @@ for file in files:
     })
 # === === ===
 
-# === Load the debug examples ===
 debug_examples = []
-
-if app.debug:
+if MAKE_DEBUG_EXAMPLES:
     debug_file = "debug_examples.txt"
     debug_scores = open(debug_file).read().split("\n-----\n")
 
@@ -45,6 +49,23 @@ if app.debug:
         })
 # === === ===
 
+if MAKE_DOC_EXAMPLES:
+    doc_file = "doc_examples.txt"
+    with open(doc_file, 'r') as file:
+        doc_content = file.read()
+        
+    examples = doc_content.split("* ")
+    examples.pop(0)
+
+    for example in examples:
+        # split example with "\n\n" only once
+        image_file, body = example.split("\n\n", 1)
+        base64_img = make_preview(body)
+        
+        with open(f'site_pages/static/{image_file}', 'wb') as img_file:
+            img_file.write(base64.b64decode(base64_img))
+
+
 @app.context_processor
 def inject_debug():
     return dict(debug=app.debug)
@@ -55,9 +76,24 @@ def index():
     loaded = score_examples_lookup.get(load, "")
     return render_template('index.html', page="/", loaded=loaded)
 
+# static files
+@app.route('/static/<path>')
+def send_static(path):
+    print(path)
+    return send_from_directory('site_pages/static', path)
+
+@app.route('/help/<string:lang>')
+def doc(lang):
+    with open(f'site_pages/help_{lang}.md', 'r') as file:
+        content = file.read()
+    doc_content = Markup(markdown.markdown(content))
+    return render_template('doc.html', page="/help", doc_content=doc_content)
+
 @app.route('/help')
-def doc():
-    return render_template('doc.html', page="/help")
+def doc_home():
+    # read lang in request
+    user_locale = request.accept_languages.best_match(['fr', 'en'])
+    return doc(user_locale)
 
 @app.route('/examples')
 def examples():

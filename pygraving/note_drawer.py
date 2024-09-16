@@ -166,7 +166,6 @@ class NoteDrawer(HasParentCairoContext):
         
         # selection = note.get_active_selection()
         selection = note.selection
-        print("selection", selection)
         
         # get_active_selection(self):
         # if "modifier" in self.selection:
@@ -181,7 +180,7 @@ class NoteDrawer(HasParentCairoContext):
         if alteration:
             selected_alteration = "modifier" in selection and \
                 ALTERATION_SYMBOLS_TO_NAME[selection["modifier"]["value"]] == alteration
-            is_special_color = selected_alteration and config.show_debug("show_selected_object")
+            is_special_color = config.show_debug("show_selected_object") and selected_alteration
             with self.conditional_translation(selected_alteration, note.selection_translation("modifier", "x"), note.selection_translation("modifier", "y")):
                 with self.conditional_color(is_special_color, 0,0,1):
                     self.parent.symbolDrawer.draw_alteration(alteration, align="r", x_offset=alteration_x_offset)
@@ -191,8 +190,9 @@ class NoteDrawer(HasParentCairoContext):
             y_dot = 0
             if (2 <= note.degree <= 10) and (note.degree%2 == 0):
                 y_dot += config("DOT_Y_OFFSET")
+            is_special_color = config.show_debug("show_selected_object") and "dot" in selection
             with self.conditional_translation("dot" in selection, note.selection_translation("dot", "x"), note.selection_translation("dot", "y")):
-                with self.conditional_color("dot" in selection, 0,0,1):
+                with self.conditional_color(is_special_color, 0,0,1):
                     self.parent.symbolDrawer.draw_dot(x_dot, y_dot)
         
         self.draw_centered_ellipse(note)
@@ -202,12 +202,14 @@ class NoteDrawer(HasParentCairoContext):
         
         fingering_finger = note.extras.get("fingering_finger", None)
         if fingering_finger is not None:
+            is_special_color = config.show_debug("show_selected_object") and "fingering_finger" in selection
             with self.conditional_translation("fingering_finger" in selection, note.selection_translation("fingering_finger", "x"), note.selection_translation("fingering_finger", "y")):
-                with self.conditional_color("fingering_finger" in selection, 0,0,1):
+                with self.conditional_color(is_special_color, 0,0,1):
                     self.draw_fingering(x, note.degree, fingering_finger, False)
         
         fingering_string = note.extras.get("fingering_string", None)
         if fingering_string is not None:
+            is_special_color = config.show_debug("show_selected_object") and "fingering_string" in selection
             with self.conditional_translation("fingering_string" in selection, note.selection_translation("fingering_string", "x"), note.selection_translation("fingering_string", "y")):
-                with self.conditional_color("fingering_string" in selection, 0,0,1):
+                with self.conditional_color(is_special_color, 0,0,1):
                     self.draw_fingering(x, note.degree, fingering_string, True)

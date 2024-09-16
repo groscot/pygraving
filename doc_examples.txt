@@ -1,0 +1,79 @@
+* staff.png
+
+BEGIN line
+SET clef_sharp 2
+SIGNATURE 4 4
+BEGIN grouped
+SIGNATURE C
+
+* note_example.png
+
+BEGIN line
+MOVE 0.5 forward
+bmi+.! "Lorem" ((2)) (4)
+SELECT '(4)'
+TRANSLATE 0.55 -0.33
+
+* alterations.png
+
+BEGIN line
+#sol bla nsi
+
+* modifiers.png
+
+BEGIN line
+la. la! la.!
+
+* chords.png
+
+BEGIN line
+(do mi sol) [re mi] [mi fa] [re fa]!
+
+* lyrics.png
+
+BEGIN line
+do "Lo" re "-rem"
+
+* rests.png
+
+BEGIN line
+MOVE 0 forward
+SET duration 1 _
+SET duration 2 _
+SET duration 3 _
+SET duration 4 _
+|
+
+* fingering.png
+
+BEGIN line
+la ((3))
+MOVE 0.5 forward
+la (2)
+MOVE 0.5 forward
+la ((3)) (2)
+
+* move.png
+
+BEGIN line
+si si | si
+MOVE 1 forward
+si |
+si
+MOVE 1 back
+do! |
+
+* translate.png
+
+BEGIN line
+MOVE 0.5 forward
+si- " "  ((2))
+si- ((2))
+SELECT '((2))'
+TRANSLATE 0 1.75
+
+* bars.png
+
+BEGIN line
+si | si || si |: si :|
+si [| si |] si [|: si :|]
