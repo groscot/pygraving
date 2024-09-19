@@ -68,7 +68,7 @@ class GenericLayout():
         return self.y - y
 
     def register(self, what, **args):
-        assert what in ["bar", "silence", "signature", "note", "chord", "beamed_group", "clef_alterations"]
+        assert what in ["bar", "silence", "signature", "note", "chord", "beamed_group", "clef_alterations", "slur"]
         if what == "note":
             if args["note"].extras.get("voice"):
                 self.has_voice_tracks = max(self.has_voice_tracks, len(args["note"].extras.get("voice")))

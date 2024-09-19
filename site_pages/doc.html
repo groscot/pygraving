@@ -27,12 +27,13 @@ code {
     padding: 0.25em 0.5em;
 }
 
-div:has(.fragment) {
+.fragments-parent {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     gap: 0.5em;
     align-items: center;
+    font-size: x-large;
 }
 
 .fragment {
@@ -44,6 +45,55 @@ div:has(.fragment) {
 .fragment span:nth-child(2) {
     font-size: 0.5em;
 }
+
+.toc {
+    position: sticky;
+    top: 6rem;
+    width: 300px;
+    max-height: 80vh;
+    overflow-y: auto;
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.25rem;
+    padding: 1rem;
+    margin-right: 1rem;
+}
+
+.toc a {
+    display: block;
+    padding: 0.25rem 0;
+    color: #1f2937;
+    text-decoration: none;
+}
+
+.toc a.active {
+    font-weight: 600;
+    color: #3b82f6;
+}
+
+.toc a.h1 {
+    font-size: 1.25rem;
+}
+
+.toc a.h2 {
+    font-size: 1.125rem;
+}
+
+.toc a.h3 {
+    font-size: 1rem;
+}
+
+.toc a.h4 {
+    font-size: 0.875rem;
+}
+
+.toc a.h5 {
+    font-size: 0.75rem;
+}
+
+.toc a.h6 {
+    font-size: 0.625rem;
+}
 </style>
 <article class="prose sm:prose lg:prose-lg mt-4 mx-auto">
     <div class="my-2 p-2 bg-blue-100 text-blue-800">
@@ -54,4 +104,40 @@ div:has(.fragment) {
     </div>
     {{ doc_content }}
 </article>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const toc = document.getElementById('toc');
+    const content = document.querySelector('article');
+    const headers = content.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    
+    headers.forEach((header, index) => {
+        if (!header.id) {
+            header.id = `header-${index}`;
+        }
+        const link = document.createElement('a');
+        link.href = `#${header.id}`;
+        link.textContent = header.textContent;
+        link.classList.add(header.tagName.toLowerCase());
+        toc.appendChild(link);
+    });
+
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            const id = entry.target.getAttribute('id');
+            const tocLink = toc.querySelector(`a[href="#${id}"]`);
+            if (tocLink) {
+                if (entry.intersectionRatio > 0) {
+                    tocLink.classList.add('active');
+                } else {
+                    tocLink.classList.remove('active');
+                }
+            }
+        });
+    });
+
+    headers.forEach(header => {
+        observer.observe(header);
+    });
+});
+</script>
 {% endblock %}

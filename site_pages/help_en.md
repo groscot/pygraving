@@ -1,4 +1,4 @@
-## Music Staff Configuration
+## Staff Configuration
 
 - Use `BEGIN line` to start a new staff or add a line.
 - Use `BEGIN grouped` to add a line connected to the previous one.
@@ -13,7 +13,7 @@
 Adding a note requires at a minimum its **degree**. Other parameters follow a specific order.
 Here is a complete example of a note with all possible options: `bmi+.! "Lorem" ((2)) (4)`
 
-<div class="text-3xl">
+<div class="fragments-parent">
 <div class="fragment text-red-600">
     <span class="bg-red-100">b</span><span>accidental</span>
 </div>
@@ -106,6 +106,15 @@ Chords are indicated by notes in parentheses, and tied eighth notes by brackets:
 ![](/static/chords.png)
 
 To have chords and groups oriented downwards, add a `!` after the parentheses or brackets.
+
+## Slurs (legato) and tied notes
+
+Slurs or sustained notes are indicated by enclosing the two notes in curly braces `{}`:
+
+- `{fa+! mi+!}` for a legato from high F to high E
+- `{fa | fa}` to indicate that the note should be held until the next measure
+
+![](/static/slurs.png)
 
 ## Measure Bars and Repeats
 

@@ -31,7 +31,7 @@
 
 ## features quality of life
 
-- [ ] mode debug qui affiche les positions etc
+- [x] mode debug qui affiche les positions etc
 - [ ] Gestion de plusieurs pages
 
 

@@ -77,3 +77,9 @@ TRANSLATE 0 1.75
 BEGIN line
 si | si || si |: si :|
 si [| si |] si [|: si :|]
+
+* slurs.png
+
+BEGIN line
+sol+! {fa+! mi+!} {fa | SET duration 0
+fa} :|

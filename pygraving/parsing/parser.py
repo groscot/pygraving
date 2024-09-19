@@ -48,12 +48,16 @@ newvoicetrack = pyparsing.QuotedString(quote_char='"')
 newvoicetrack.setParseAction(lambda t: t[0].strip())
 newvoice = pyparsing.Optional(pyparsing.OneOrMore(newvoicetrack))("voice")
 
+slur_start = pyparsing.Optional(pyparsing.Literal('{'))
+slur_end = pyparsing.Optional(pyparsing.Literal('}'))
 
 alteration = pyparsing.Optional(pyparsing.Or(["#", "b", "n"]))
 note = pyparsing.Group(
+    slur_start("slur_start") + \
     alteration("alteration") + (degree_int("degree") | string_name_note("degree")) + \
-        pyparsing.Optional(".")("dotted") + flipped + newvoice("voice") + \
-        fingering_string("fingering_string") + fingering_finger("fingering_finger")
+    pyparsing.Optional(".")("dotted") + flipped + newvoice("voice") + \
+    fingering_string("fingering_string") + fingering_finger("fingering_finger") + \
+    slur_end("slur_end")
 )
 
 # chord = pyparsing.nestedExpr(content=note)

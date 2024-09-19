@@ -130,82 +130,107 @@ function increaseGamme() {
 
 // Store the previously checked radio button
 let previousChecked = null;
+
+function downloadImage() {
+    const preview = document.querySelector('.preview');
+    const link = document.createElement('a');
+    link.href = preview.src;
+    link.download = 'preview.png';
+    link.click();
+}
+
+function saveToLocalStorage() {
+    const sizeLimit = 5000;
+    const body = document.querySelector('textarea[name="body"]').value;
+    if (body.length > sizeLimit) {
+        alert(`Content is too large to save. Current size: ${body.length} characters. Size limit: ${sizeLimit} characters. Please reduce the size.`);
+        return;
+    }
+
+    const name = prompt('Enter a name for this content:');
+    if (name) {
+        localStorage.setItem(name, body);
+        alert('Content saved!');
+    }
+}
 </script>
 <div class="">
 <div class="my-0 p-2 border-b sticky top-0 bg-white flex gap-4 justify-between">
     <form id="insertForm" class="m-0">
-        <input type="button" value="+ Portée" data-insert="\nBEGIN line\n" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
-        <input type="button" value="+ Instrument" data-insert="\nBEGIN grouped\n" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+        <input type="button" value="+ Staff" data-insert="\nBEGIN line\n" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+        <input type="button" value="+ Staff (linked)" data-insert="\nBEGIN grouped\n" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
         |
-        <span class="inline-flex items-center ml-4 mr-2">Durée active</span>
+        <span class="inline-flex items-center ml-4 mr-2">Active Duration</span>
         <div class="inline-flex flex-wrap">
             <label class="inline-flex items-center m-0 cursor-pointer">
                 <input type="radio" name="duration" value="#" class="hidden peer duration-btn" data-insert="SET duration 0\n">
-                <span class="px-2 py-1 text-sm border-r border-gray-400 rounded-l-md bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Ronde</span>
+                <span class="px-2 py-1 text-sm border-r border-gray-400 rounded-l-md bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Whole Note</span>
             </label>
             <label class="inline-flex items-center m-0 cursor-pointer">
                 <input type="radio" name="duration" value="b" class="hidden peer duration-btn" data-insert="SET duration 1\n">
-                <span class="px-2 py-1 text-sm border-r border-gray-400 bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Blanche</span>
+                <span class="px-2 py-1 text-sm border-r border-gray-400 bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Half Note</span>
             </label>
             <label class="inline-flex items-center m-0 cursor-pointer">
                 <input type="radio" name="duration" value="b" class="hidden peer duration-btn" data-insert="SET duration 2\n" checked="checked">
-                <span class="px-2 py-1 text-sm border-r border-gray-400 bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Noire</span>
+                <span class="px-2 py-1 text-sm border-r border-gray-400 bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Quarter Note</span>
             </label>
             <label class="inline-flex items-center m-0 cursor-pointer">
                 <input type="radio" name="duration" value="n" class="hidden peer duration-btn" data-insert="SET duration 3\n">
-                <span class="px-2 py-1 text-sm rounded-r-md bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Croche</span>
+                <span class="px-2 py-1 text-sm rounded-r-md bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Eighth Note</span>
             </label>
         </div>
         |
-        <input type="button" value="Silence" data-insert="_" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
-        <input type="button" value="Paroles" data-insert="[]" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+        <input type="button" value="Rest" data-insert="_" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+        <input type="button" value="Lyrics" data-insert='""' class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
         |
-        <input type="button" value="Accord" onclick="wrapSelection('(', ')')" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
-        <input type="button" value="Groupe" onclick="wrapSelection('[', ']')" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+        <input type="button" value="Chord" onclick="wrapSelection('(', ')')" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+        <input type="button" value="Group" onclick="wrapSelection('[', ']')" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+        <input type="button" value="Slur" onclick="wrapSelection('{', '}')" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+        <input type="button" value="Comment" onclick="wrapSelection('\/* ', ' *\/')" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
         <br>
         <span class="inline-flex items-center mr-4 mb-2 text-gray-800 font-semibold">Note</span>
         <div class="inline-flex flex-wrap">
             <input type="radio" name="modifier" value="" id="modifier-normal" class="hidden" checked="checked">
             <label class="inline-flex items-center m-0 cursor-pointer">
                 <input type="radio" name="modifier" value="#" class="hidden peer">
-                <span class="px-2 py-1 text-sm border-r border-gray-400 rounded-l-md bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Dièse #</span>
+                <span class="px-2 py-1 text-sm border-r border-gray-400 rounded-l-md bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Sharp #</span>
             </label>
             <label class="inline-flex items-center m-0 cursor-pointer">
                 <input type="radio" name="modifier" value="b" class="hidden peer">
-                <span class="px-2 py-1 text-sm border-r border-gray-400 bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Bémol b</span>
+                <span class="px-2 py-1 text-sm border-r border-gray-400 bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Flat b</span>
             </label>
             <label class="inline-flex items-center m-0 cursor-pointer">
                 <input type="radio" name="modifier" value="n" class="hidden peer">
-                <span class="px-2 py-1 text-sm rounded-r-md bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Bécart</span>
+                <span class="px-2 py-1 text-sm rounded-r-md bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Natural</span>
             </label>
         </div>
         <div class="inline-flex flex-wrap">
             <label class="inline-flex items-center m-0 cursor-pointer">
                 <input type="checkbox" name="inverted" class="hidden peer">
-                <span class="px-2 py-1 text-sm rounded-md bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Inversée</span>
+                <span class="px-2 py-1 text-sm rounded-md bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Inverted</span>
             </label>
         </div>
         <div class="inline-flex flex-wrap">
-            <span class="inline-flex items-center ml-4 mr-2">Gamme</span>
+            <span class="inline-flex items-center ml-4 mr-2">Scale</span>
             <input type="button" value="-" onclick="decreaseGamme()" class="px-2 py-1 text-sm rounded-md bg-gray-100 hover:bg-gray-200 text-gray-700 ">
             <input type="text" value="0" class="px-2 py-1 text-sm rounded-md text-gray-700 w-8 text-center" name="gamme" id="gammeInput">
             <input type="button" value="+" onclick="increaseGamme()" class="px-2 py-1 text-sm rounded-md bg-gray-100 hover:bg-gray-200 text-gray-700 ">
         </div>
         <div class="inline-flex flex-wrap">
-            <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('do')">Do</button>
-            <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('re')">Ré</button>
-            <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('mi')">Mi</button>
-            <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('fa')">Fa</button>
-            <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('sol')">Sol</button>
-            <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('la')">La</button>
-            <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('si')">Si</button>
+            <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('do')">C</button>
+            <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('re')">D</button>
+            <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('mi')">E</button>
+            <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('fa')">F</button>
+            <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('sol')">G</button>
+            <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('la')">A</button>
+            <button type="button" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1" onclick="insertNote('si')">B</button>
         </div>
     </form>
     <div class="flex flex-col">
         <label class="mr-4">
-            <input type="checkbox" id="auto-update" class="mr-2" checked>Prévisualisation automatique
+            <input type="checkbox" id="auto-update" class="mr-2" checked>Live Preview
         </label>
-        <input type="button" onclick="doPreview();" value="Générer" class="bg-blue-600 hover:bg-blue-700 text-blue-50 font-semibold py-2 px-4 border border-blue-400 rounded shadow">
+        <input type="button" onclick="doPreview();" value="Generate" class="bg-blue-600 hover:bg-blue-700 text-blue-50 font-semibold py-2 px-4 border border-blue-400 rounded shadow">
     </div>
 </div>
 <div class="lg:grid grid-cols-2">
@@ -215,8 +240,10 @@ let previousChecked = null;
         >{% if loaded %}{{ loaded }}{% else %}BEGIN line
 {% endif %}</textarea>
     </div>
-    <div class="border p-4 m-2 shadow">
+    <div class="border p-4 m-2 shadow relative">
         <img class="preview" src="" alt="" class="max-w-full">
+        <button onclick="downloadImage()" class="absolute text-sm bottom-2 right-20 bg-transparent text-gray-500 hover:text-gray-700 font-semibold py-1 px-2 border border-gray-400 rounded shadow">📥 Download</button>
+        <button onclick="saveToLocalStorage()" class="absolute text-sm bottom-2 right-2 bg-transparent text-gray-500 hover:text-gray-700 font-semibold py-1 px-2 border border-gray-400 rounded shadow">💾 Save</button>
     </div>
 </div>
 </div>

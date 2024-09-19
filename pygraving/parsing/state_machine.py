@@ -31,6 +31,7 @@ class StateMachine:
         self.active_scoreline = None
         self.selected_object = None
         self.selected_type = None
+        self.slur_start = None
         self.last_position = 0 #! WARNING will be problematic if multiple lines and switching between them
     
     def __call__(self, text_input: str):
@@ -82,12 +83,16 @@ class StateMachine:
             self.active_scoreline.register(
                 "chord", notes=token["chord"]["notes"], duration=self.active_duration, position=self.last_position, up="flipped" not in token["chord"],
             )
+            for i, note_token in enumerate(token["chord"]["notes"]):
+                self.process_slur_if_present(note_token, position=self.last_position+i)
             self.forward()
             return
         if "beam" in token:
             self.active_scoreline.register(
                 "beamed_group", notes=token["beam"]["notes"], duration=1, position=self.last_position, up="flipped" not in token["beam"],
             )
+            for i, note_token in enumerate(token["beam"]["notes"]):
+                self.process_slur_if_present(note_token, position=self.last_position+i)
             self.forward( len(token["beam"]["notes"]) )
             return
         else:
@@ -206,6 +211,29 @@ class StateMachine:
         note.duration = self.active_duration
         self.active_scoreline.register("note", note=note, position=self.last_position)
         
+        if "slur_start" in token["note"]:
+            self.slur_start = (note, self.last_position)
+        if "slur_end" in token["note"]:
+            if self.slur_start is None:
+                raise ValueError("Slur end without start")
+            self.active_scoreline.register("slur", start=self.slur_start, end=(note, self.last_position))
+            self.slur_start = None
+        
         multiplier = 1.5 if note.is_dotted else 1.
         space = self.active_duration_in_spaces * multiplier
         self.forward(space)
+        
+    def process_slur_if_present(self, note_token, note: Note = None, position: int = None):
+        if note is None:
+            note = Note.from_token(note_token)
+            note.duration = self.active_duration
+        
+        position = position or self.last_position
+        if "slur_start" in note_token:
+            self.slur_start = (note, position)
+        if "slur_end" in note_token:
+            if self.slur_start is not None:
+                self.active_scoreline.register("slur", start=self.slur_start, end=(note, position))
+                self.slur_start = None
+            else:
+                raise ValueError("Slur end without start")

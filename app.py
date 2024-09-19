@@ -12,8 +12,20 @@ from pygraving.score import score_from_json
 
 app = Flask(__name__, template_folder='./site_pages')
 
-MAKE_DEBUG_EXAMPLES = app.debug
-MAKE_DOC_EXAMPLES = True
+# "development"-like params
+MAKE_SITE_EXAMPLES = False
+MAKE_DEBUG_EXAMPLES = False
+BUILD_DOC_EXAMPLES = False
+
+# # "development"-like params
+# MAKE_SITE_EXAMPLES = False
+# MAKE_DEBUG_EXAMPLES = True
+# BUILD_DOC_EXAMPLES = False
+
+# # "production"-like params
+# MAKE_SITE_EXAMPLES = True
+# MAKE_DEBUG_EXAMPLES = app.debug
+# BUILD_DOC_EXAMPLES = True
 
 def make_preview(body):
     machine = StateMachine()
@@ -21,20 +33,20 @@ def make_preview(body):
     img_str = base64.b64encode(score_image).decode('utf-8')
     return img_str
 
-# === Load the site examples ===
-examples_folder = "site_examples"
-files = sorted(os.listdir(examples_folder))
-score_examples_lookup = {file.replace(".txt", ""): open(f"{examples_folder}/{file}").read() for file in files}
-
 score_examples = []
-for file in files:
-    value = open(f"{examples_folder}/{file}").read()
-    score_examples.append({
-        "name": file.replace(".txt", ""),
-        "value": value,
-        "base64_img": make_preview(value)
-    })
-# === === ===
+score_examples_lookup = {}
+if MAKE_SITE_EXAMPLES:
+    examples_folder = "site_examples"
+    files = sorted(os.listdir(examples_folder))
+    score_examples_lookup = {file.replace(".txt", ""): open(f"{examples_folder}/{file}").read() for file in files}
+
+    for file in files:
+        value = open(f"{examples_folder}/{file}").read()
+        score_examples.append({
+            "name": file.replace(".txt", ""),
+            "value": value,
+            "base64_img": make_preview(value)
+        })
 
 debug_examples = []
 if MAKE_DEBUG_EXAMPLES:
@@ -47,9 +59,8 @@ if MAKE_DEBUG_EXAMPLES:
             "value": example,
             "base64_img": make_preview(example)
         })
-# === === ===
 
-if MAKE_DOC_EXAMPLES:
+if BUILD_DOC_EXAMPLES:
     doc_file = "doc_examples.txt"
     with open(doc_file, 'r') as file:
         doc_content = file.read()
@@ -98,6 +109,10 @@ def doc_home():
 @app.route('/examples')
 def examples():
     return render_template('examples.html', page="/examples", examples=score_examples)
+
+@app.route('/me')
+def me():
+    return render_template('me.html', page="/me")
 
 @app.route('/debug')
 def debug():

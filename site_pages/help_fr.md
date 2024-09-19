@@ -1,4 +1,4 @@
-## Configuration de la portée musicale
+## Configuration de la portée
 
 - Utilisez `BEGIN line` pour commencer une nouvelle portée ou ajouter une ligne.
 - Utilisez `BEGIN grouped` pour ajouter une ligne connectée à la précédente.
@@ -13,7 +13,7 @@
 L'ajout d'une note nécessite au minimum son **degré**. Les autres paramètres suivent un ordre spécifique.
 Voici un exemple complet d'une note avec toutes les options possibles : `bmi+.! "Lorem" ((2)) (4)`
 
-<div class="text-3xl">
+<div class="fragments-parent">
 <div class="fragment text-red-600">
     <span class="bg-red-100">b</span><span>altération</span>
 </div>
@@ -105,7 +105,14 @@ Les accords sont indiqués par des notes entre parenthèses, et les croches lié
 
 ![](/static/chords.png)
 
-Pour que les accords et les groupes soient orientés vers le bas, ajoutez un `!` après les parenthèses ou les crochets.
+## Liaisons (legato)
+
+Les liaisons type _legato_ ou note soutenue s'indiquent en encadrant les deux notes par des accolades `{}` :
+
+- `{fa+! mi+!}` pour un legato du fa au mi aigu
+- `{fa | fa}` pour indiquer que la note doit être tenue jusqu'à la mesure d'après
+
+![](/static/slurs.png)
 
 ## Barres de mesure et répétitions
 

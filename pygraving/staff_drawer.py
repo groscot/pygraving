@@ -183,32 +183,6 @@ class StaffDrawer(HasCairoContext):
             for track, hyphen in zip(voice, hyphen_before):
                 self.place_voice(track_i, position, note.duration, voice_duration, track, hyphen)
                 track_i += 1
-    
-    # def place_note(
-    #     self, position: int, degree: int, duration: int,
-    #     up: bool = True, beamed: bool = False, modifiers="", is_opposite_x: bool = False,
-    #     voice: str|None = None, voice_duration: int|None = None, hyphen_before=False
-    # ):
-    #     x = self.layout.position_to_x(position)
-    #     y = self.layout.degree_to_y(degree)
-        
-    #     note = Note(degree, duration, up, beamed, modifiers, is_opposite_x)
-    #     self.noteDrawer.draw_at(x, y, note)
-    #     if "." in modifiers:
-    #         self.place_dot(position, degree)
-        
-    #     helper_line_x_offset = 0
-    #     if is_opposite_x:
-    #         helper_line_x_offset = config("NOTE_ELLIPSE_BASE_WIDTH") - config.STEM_LW
-    #         print(helper_line_x_offset)
-    #     if degree <= 0:
-    #         self.place_note_helper_lines(position, degree, 0, helper_line_x_offset)
-    #     if degree >= 12:
-    #         self.place_note_helper_lines(position, 12, degree, helper_line_x_offset)
-        
-    #     if voice is not None:
-    #         voice_duration = voice_duration or duration
-    #         self.place_voice(position, duration, voice_duration, voice, hyphen_before)
 
     def config_beamed_group(self, position: float, notes: list[dict], duration: int, up: bool = True):
         self.beamedGroupHandler.init(position, notes, duration, up)
@@ -273,6 +247,12 @@ class StaffDrawer(HasCairoContext):
             self.ctx.show_text("-")
         self._last_lyric_data[track_i] = start+width
 
+    def place_slur(self, start: tuple[Note, float], end: tuple[Note, float]):
+        start_x = self.layout.position_to_x(start[1])
+        end_x = self.layout.position_to_x(end[1])
+        direction = 1 if start[0].up else -1
+        self.symbolDrawer.draw_slur(start_x, start[0].degree, end_x, end[0].degree, direction)
+    
     def register(self, what, **args):
         self.layout.register(what, **args)
         if hasattr(self, "config_" + what):

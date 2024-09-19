@@ -1,0 +1,76 @@
+{% extends "all_pages.html" %}
+
+{% block content %}
+<article class="prose lg:prose-xl mt-4">
+    <h2>My Scores</h2>
+</article>
+<div class="lg:grid grid-cols-2 mt-4 gap-4" id="scoresContainer">
+    <!-- Scores will be loaded here -->
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const scoresContainer = document.getElementById('scoresContainer');
+    const scores = Object.keys(localStorage).map(key => ({
+        name: key,
+        value: localStorage.getItem(key)
+    }));
+
+    if (scores.length === 0) {
+        scoresContainer.innerHTML = '<p>No scores saved.</p>';
+    } else {
+        scores.forEach(score => {
+            const scoreElement = document.createElement('div');
+            const previewElement = document.createElement('div');
+            scoreElement.className = 'relative';
+            scoreElement.innerHTML = `
+                <pre class="bg-gray-100 text-gray-800 p-2 mb-8 w-full" style="font-size: 80%;">${score.value}</pre>
+                <button class="underline text-red-500 inline-block absolute right-0 bottom-0 ml-4" onclick="deleteScore('${score.name}')">Delete</button>
+            `;
+            previewElement.className = 'border p-4 m-2 shadow relative';
+            previewElement.innerHTML = `
+                <img class="preview" id="preview-${score.name}" src="" alt="" class="max-w-full">
+                <button onclick="downloadImage('${score.name}')" class="absolute text-sm bottom-2 right-20 bg-transparent text-gray-500 hover:text-gray-700 font-semibold py-1 px-2 border border-gray-400 rounded shadow">📥 Download</button>
+            `;
+            scoresContainer.appendChild(scoreElement);
+            scoresContainer.appendChild(previewElement);
+
+            // Generate preview for each score
+            generatePreview(score.value, `preview-${score.name}`);
+        });
+    }
+});
+
+function generatePreview(bodyContent, previewId) {
+    fetch('/preview', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            body: bodyContent,
+        }),
+    })
+    .then(response => response.text())
+    .then(data => {
+        const preview = document.getElementById(previewId);
+        preview.src = "data:image/png;base64," + data;
+    });
+}
+
+function deleteScore(name) {
+    if (confirm('Are you sure you want to delete this score?')) {
+        localStorage.removeItem(name);
+        location.reload();
+    }
+}
+
+function downloadImage(previewName) {
+    const preview = document.getElementById('preview-' + previewName);
+    const link = document.createElement('a');
+    link.href = preview.src;
+    link.download = previewName + '.png';
+    link.click();
+}
+</script>
+{% endblock %}

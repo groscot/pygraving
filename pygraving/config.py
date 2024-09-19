@@ -42,6 +42,8 @@ class Config:
     BEAM_MAX_SLOPE = 1.5
     BEAM_MAX_Y_DIFFERENCE = 1.5
     
+    SLUR_TO_NOTE_SPACE = 1.
+    
     # Voice track
     VOICE_FONT_FACE = "Times New Roman"
     LYRICS_SPACE = 2.5
@@ -58,6 +60,7 @@ class Config:
     DEBUG_FLAGS = {
         "show_beam_block_note": True,
         "show_selected_object": True,
+        "show_slur_endpoints": True,
     }
     
     def __call__(self, param: str = "") -> float:

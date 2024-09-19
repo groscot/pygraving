@@ -9,6 +9,15 @@
     <div class="text-sm font-medium text-center text-gray-500 dark:text-gray-400">
         <ul class="flex flex-wrap -mb-0.5">
             <li class="me-2">
+                <a href="/me"
+                {% if page == "/me" %}
+                class="inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-500 dark:border-blue-500" aria-current="page"
+                {% else %}
+                class="inline-block p-4 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+                {% endif %}
+                >⭐️ My Scores</a>
+            </li>
+            <li class="me-2">
                 <a href="/help"
                 {% if page == "/help" %}
                 class="inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-500 dark:border-blue-500" aria-current="page"
@@ -43,8 +52,13 @@
         </ul>
     </div>
     </nav>
-    {% block content %}
-    {% endblock %}
+    <div class="flex">
+        <div class="toc hidden md:block" id="toc"></div>
+        <div class="content flex-1">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </div>
     <footer class="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
         <p>Created by <a class="border-b border-gray-200 hover:border-gray-400" href="https://github.com/groscot">Raphaël Groscot</a></p>
     </footer>
