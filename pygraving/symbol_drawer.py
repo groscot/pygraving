@@ -47,8 +47,8 @@ class SymbolDrawer(HasParentCairoContext):
         self.ctx.save()
         
         if x_offset or position or degree:
-            x = self.parent.layout.position_to_x(position) if position else 0
-            y = self.parent.layout.degree_to_y(degree) if degree else 0
+            x = self.parent.layout.position_to_x(position) if position is not None else 0
+            y = self.parent.layout.degree_to_y(degree) if degree is not None else 0
             self.ctx.translate(x + x_offset, y)
         
         self.ctx.scale(scale, scale)

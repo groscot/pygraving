@@ -76,7 +76,10 @@ class StateMachine:
             self.forward(1)
             return
         if "silence" in token:
-            self.active_scoreline.register("silence", position=self.last_position, duration=self.active_duration)
+            duration = self.active_duration
+            if "duration" in token:
+                duration = int(token["duration"][0])
+            self.active_scoreline.register("silence", position=self.last_position, duration=duration)
             self.forward()
             return
         if "note" in token:

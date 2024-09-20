@@ -1,3 +1,10 @@
+<div class="my-2 p-2 bg-blue-100 text-blue-800">
+    <b>Information</b> : la page Exemples met en avant des exemples de commandes à essayer. Vous pourrez les importer dans l'éditeur en un clic pour les tester.
+</div>
+<div class="my-2 p-2 bg-red-100 text-red-800">
+    <b>Attention</b> : une erreur dans le code peut mener à une partition qui s'arrête de façon abrupte.
+</div>
+
 ## Configuration de la portée
 
 - Utilisez `BEGIN line` pour commencer une nouvelle portée ou ajouter une ligne.
@@ -8,7 +15,24 @@
 
 ![](/static/staff.png)
 
-## Ajout de notes
+## Durée des notes
+
+Lorsqu'on rajoute une note (section suivante), ce sera par défaut une noire. Pour changer la durée par défaut des notes suivantes, on utiliser la commande `SET duration X`, où `X` est un nombre qui représente le type de note :
+
+- `0` : ronde
+- `1` : blanche
+- `2` : noire
+- `3` : croche
+- `4` : double croche
+
+> ```
+> BEGIN line  
+> do re SET duration 3 mi fa sol SET duration 1 fa
+> ```
+> 
+> ![](/static/durations.png)
+
+## Ajouter une note
 
 L'ajout d'une note nécessite au minimum son **degré**. Les autres paramètres suivent un ordre spécifique.
 Voici un exemple complet d'une note avec toutes les options possibles : `bmi+.! "Lorem" ((2)) (4)`
@@ -28,6 +52,9 @@ Voici un exemple complet d'une note avec toutes les options possibles : `bmi+.! 
 </div>
 <div class="fragment">
     <span class="bg-gray-100">!</span><span>vers le bas</span>
+</div>
+<div class="fragment text-purple-600">
+    <span class="bg-purple-100">:2</span><span>durée</span>
 </div>
 <div class="fragment text-orange-600">
     <span class="bg-orange-100">"Lorem"</span><span>paroles</span>
@@ -51,8 +78,6 @@ Le degré doit être noté soit avec le numéro de la note (1 = do de base), soi
 - `do+` correspond à l'octave supérieure de do, soit `8`.
 - `mi--` correspond au mi, deux octaves en-dessous du do de référence, soit le mi grave de la guitare.
 
-Pour changer la durée de la note (ronde, blanche, noire, etc.), utilisez `SET duration N`, où N=0 pour une ronde, 1 pour une blanche, 2 pour une noire, etc.
-
 #### Altérations
 
 Placez ces symboles avant la note :
@@ -62,6 +87,10 @@ Placez ces symboles avant la note :
 - `n` pour une note naturelle (bécarre).
 
 ![](/static/alterations.png)
+
+#### Durée
+
+On peut décider d'ignorer la durée spécifiée par `SET duration` et indiquer une durée spécifique à la note actuelle avec deux points : `do:3` sera une croche.
 
 #### Options supplémentaires
 
@@ -104,6 +133,13 @@ Les accords sont indiqués par des notes entre parenthèses, et les croches lié
 - `[re mi] [mi fa] [re fa]` pour trois groupes de deux croches liées.
 
 ![](/static/chords.png)
+
+Pour orienter les accords et les groupes vers le bas, ajoutez un `!` après les parenthèses ou les crochets.
+À l'intérieur d'un groupe de croches, on peut changer la durée de chaque note pour indiquer des rythmes complexes
+
+Exemple : `[sol la:4 si:4] [la:4 si do+]`
+
+![](/static/beam_durations.png)
 
 ## Liaisons (legato)
 

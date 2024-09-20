@@ -6,6 +6,11 @@ SIGNATURE 4 4
 BEGIN grouped
 SIGNATURE C
 
+* durations.png
+
+BEGIN line
+do re SET duration 3 mi fa sol SET duration 1 fa
+
 * note_example.png
 
 BEGIN line
@@ -83,3 +88,8 @@ si [| si |] si [|: si :|]
 BEGIN line
 sol+! {fa+! mi+!} {fa | SET duration 0
 fa} :|
+
+* beam_durations.png
+
+BEGIN line
+[sol la:4 si:4] [la:4 si do+]

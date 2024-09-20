@@ -73,7 +73,7 @@ chord = pyparsing.Group(
 beam = pyparsing.Group(
     pyparsing.Literal("[") + pyparsing.OneOrMore(note("note"))("notes") + pyparsing.Literal("]") + flipped
 )
-silence = pyparsing.Literal("_")
+silence = pyparsing.Literal("_") + inline_duration("duration")
 
 signature_arg = pyparsing.Group(pyparsing.Word(pyparsing.nums)("digit_1") + pyparsing.Word(pyparsing.nums)("digit_2")) | pyparsing.Keyword("C")
 signature = pyparsing.Keyword("SIGNATURE")("command") + signature_arg("value")

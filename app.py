@@ -12,20 +12,16 @@ from pygraving.score import score_from_json
 
 app = Flask(__name__, template_folder='./site_pages')
 
-# "development"-like params
-MAKE_SITE_EXAMPLES = False
-MAKE_DEBUG_EXAMPLES = False
-BUILD_DOC_EXAMPLES = False
+try:
+    env = json.load(open("env.json"))
+    print("Configuration found in env.json")
+except FileNotFoundError:
+    env = {}
 
-# # "development"-like params
-# MAKE_SITE_EXAMPLES = False
-# MAKE_DEBUG_EXAMPLES = True
-# BUILD_DOC_EXAMPLES = False
-
-# # "production"-like params
-# MAKE_SITE_EXAMPLES = True
-# MAKE_DEBUG_EXAMPLES = app.debug
-# BUILD_DOC_EXAMPLES = True
+# production params
+MAKE_SITE_EXAMPLES = env.get("MAKE_SITE_EXAMPLES", True)
+MAKE_DEBUG_EXAMPLES = env.get("MAKE_DEBUG_EXAMPLES", app.debug)
+BUILD_DOC_EXAMPLES = env.get("BUILD_DOC_EXAMPLES", False)
 
 def make_preview(body):
     machine = StateMachine()

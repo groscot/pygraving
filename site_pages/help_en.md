@@ -1,3 +1,10 @@
+<div class="my-2 p-2 bg-blue-100 text-blue-800">
+    <b>Information</b>: The Examples page showcases command examples to try. You can import them into the editor with a single click to test them.
+</div>
+<div class="my-2 p-2 bg-red-100 text-red-800">
+    <b>Warning</b>: An error in the code can lead to a score that stops abruptly.
+</div>
+
 ## Staff Configuration
 
 - Use `BEGIN line` to start a new staff or add a line.
@@ -7,6 +14,23 @@
 - Use `SIGNATURE 3 4`, `SIGNATURE 2 4`, etc., or `SIGNATURE C` to specify the time signature.
 
 ![](/static/staff.png)
+
+## Note Duration
+
+When adding a note (next section), it will default to a quarter note. To change the default duration of the following notes, use the command `SET duration X`, where `X` is a number representing the type of note:
+
+- `0`: whole note
+- `1`: half note
+- `2`: quarter note
+- `3`: eighth note
+- `4`: sixteenth note
+
+> ```
+> BEGIN line  
+> do re SET duration 3 mi fa sol SET duration 1 fa
+> ```
+> 
+> ![](/static/durations.png)
 
 ## Adding Notes
 
@@ -28,6 +52,9 @@ Here is a complete example of a note with all possible options: `bmi+.! "Lorem" 
 </div>
 <div class="fragment">
     <span class="bg-gray-100">!</span><span>downward</span>
+</div>
+<div class="fragment text-purple-600">
+    <span class="bg-purple-100">:2</span><span>duration</span>
 </div>
 <div class="fragment text-orange-600">
     <span class="bg-orange-100">"Lorem"</span><span>lyrics</span>
@@ -51,8 +78,6 @@ The degree must be noted either with the number of the note (1 = C base), or wit
 - `do+` corresponds to the octave above C, or `8`.
 - `mi--` corresponds to the E, two octaves below the reference C, or the low E of the guitar.
 
-To change the duration of the note (whole, half, quarter, etc.), use `SET duration N`, where N=0 for a whole note, 1 for a half note, 2 for a quarter note, etc.
-
 #### Accidentals
 
 Place these symbols before the note:
@@ -62,6 +87,10 @@ Place these symbols before the note:
 - `n` for a natural note (becarre).
 
 ![](/static/alterations.png)
+
+#### Duration
+
+You can choose to ignore the duration specified by `SET duration` and indicate a specific duration for the current note with a colon: `do:3` will be an eighth note.
 
 #### Additional Options
 
@@ -106,6 +135,11 @@ Chords are indicated by notes in parentheses, and tied eighth notes by brackets:
 ![](/static/chords.png)
 
 To have chords and groups oriented downwards, add a `!` after the parentheses or brackets.
+Within a group of eighth notes, you can change the duration of each note to indicate complex rhythms.
+
+Example: `[sol la:4 si:4] [la:4 si do+]`
+
+![](/static/beam_durations.png)
 
 ## Slurs (legato) and tied notes
 
