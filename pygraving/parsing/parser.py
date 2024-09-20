@@ -44,7 +44,11 @@ fingering_finger = pyparsing.Optional(
     pyparsing.Literal("(").suppress() + pyparsing.Word(pyparsing.nums)("number") + pyparsing.Literal(")").suppress()
 )
 
-newvoicetrack = pyparsing.QuotedString(quote_char='"')
+inline_duration = pyparsing.Optional(
+    pyparsing.Suppress(":") + pyparsing.Word(pyparsing.nums)
+)
+
+newvoicetrack = pyparsing.QuotedString(quoteChar='"')
 newvoicetrack.setParseAction(lambda t: t[0].strip())
 newvoice = pyparsing.Optional(pyparsing.OneOrMore(newvoicetrack))("voice")
 
@@ -55,7 +59,9 @@ alteration = pyparsing.Optional(pyparsing.Or(["#", "b", "n"]))
 note = pyparsing.Group(
     slur_start("slur_start") + \
     alteration("alteration") + (degree_int("degree") | string_name_note("degree")) + \
-    pyparsing.Optional(".")("dotted") + flipped + newvoice("voice") + \
+    pyparsing.Optional(".")("dotted") + flipped + \
+    inline_duration("duration") + \
+    newvoice("voice") + \
     fingering_string("fingering_string") + fingering_finger("fingering_finger") + \
     slur_end("slur_end")
 )
@@ -83,7 +89,7 @@ _TRANSLATE = pyparsing.Keyword("TRANSLATE")
 
 stop_on = _BEGIN | _SET | _MOVE | _END | _CONFIG | _SELECT | _TRANSLATE
 
-select = _SELECT("command") + pyparsing.QuotedString(quote_char="'")("object")
+select = _SELECT("command") + pyparsing.QuotedString(quoteChar="'")("object")
 translate = _TRANSLATE("command") + python_number("x") + python_number("y")
 
 bar = pyparsing.Literal("||:") | pyparsing.Literal(":||") | pyparsing.Literal("||") | \

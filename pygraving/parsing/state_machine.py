@@ -40,9 +40,12 @@ class StateMachine:
         with config.temporary_override(**self.override_config):
             return self.score.finalize()
     
+    def duration_in_spaces(self, duration):
+        return max(4/(2**duration), 1)
+    
     @property
     def active_duration_in_spaces(self):
-        return max(4/(2**self.active_duration), 1)
+        return self.duration_in_spaces(self.active_duration)
     
     def forward(self, amount: int = None):
         amount = amount or self.active_duration_in_spaces
@@ -208,7 +211,8 @@ class StateMachine:
     
     def process_note(self, token):
         note = Note.from_token(token["note"])
-        note.duration = self.active_duration
+        if "duration" not in token["note"]:
+            note.duration = self.active_duration
         self.active_scoreline.register("note", note=note, position=self.last_position)
         
         if "slur_start" in token["note"]:
@@ -220,7 +224,7 @@ class StateMachine:
             self.slur_start = None
         
         multiplier = 1.5 if note.is_dotted else 1.
-        space = self.active_duration_in_spaces * multiplier
+        space = self.duration_in_spaces(note.duration) * multiplier
         self.forward(space)
         
     def process_slur_if_present(self, note_token, note: Note = None, position: int = None):

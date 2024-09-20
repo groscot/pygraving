@@ -72,6 +72,12 @@ class Note:
         modifiers = ""
         fingering_finger = None
         fingering_string = None
+        duration = 2
+        if "duration" in token:
+            duration = token["duration"]
+            if isinstance(duration, list):
+                duration = duration[0]
+            duration = int(duration)
         
         if "fingering_finger" in token:
             fingering_finger = int(token["fingering_finger"][0])
@@ -86,7 +92,13 @@ class Note:
             modifiers += token["alteration"]
         
         if "voice" not in token:
-            return dict(degree=token["degree"], modifiers=modifiers, fingering_finger=fingering_finger, fingering_string=fingering_string)
+            return dict(
+                duration=duration,
+                degree=token["degree"],
+                modifiers=modifiers,
+                fingering_finger=fingering_finger,
+                fingering_string=fingering_string
+            )
         else:
             voice = token["voice"]
             hyphen_before = []
@@ -98,6 +110,7 @@ class Note:
                     track = track[1:]
                 tracks.append(track)
             return dict(
+                duration=duration,
                 degree=token["degree"], modifiers=modifiers,
                 fingering_finger=fingering_finger, fingering_string=fingering_string,
                 voice=tracks, hyphen_before=hyphen_before
