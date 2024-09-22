@@ -119,7 +119,9 @@ class Note:
     def compute_one_stem_endpoints(self, x0: float = 0.0, y0: float = 0.0):
         x = config("NOTE_ELLIPSE_BASE_WIDTH") / 2 - config.half(config.STEM_LW)
         sign = 1 if self.up else -1
+        
+        stem_length = self.stem_length * (1 + 0.175 * max(self.duration - 3, 0))
         y_from = -sign * config("NOTE_STEM_Y_OFFSET")
-        y_to   = -sign * self.stem_length
+        y_to   = -sign * stem_length
         
         return (x0 + x*sign, y0 + y_from, y0 + y_to, sign)

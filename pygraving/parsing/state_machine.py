@@ -106,11 +106,12 @@ class StateMachine:
         
     def process_command(self, token):
         if token["command"] == "BEGIN":
+            clef = token.get("clef", None)
             if token["object"] == "line":
-                self.active_scoreline = self.score.add_scoreline()
+                self.active_scoreline = self.score.add_scoreline(clef=clef)
                 self.last_position = 0
             elif token["object"] == "grouped":
-                grouped_lined = self.score.add_scoreline(grouped_with=self.active_scoreline)
+                grouped_lined = self.score.add_scoreline(clef=clef, grouped_with=self.active_scoreline)
                 self.active_scoreline = grouped_lined
                 self.last_position = 0
             else:

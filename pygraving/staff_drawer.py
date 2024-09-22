@@ -22,6 +22,7 @@ class StaffDrawer(HasCairoContext):
     in_group_after: bool = False
     has_clef_alterations: bool = False
     has_signature: bool = False
+    clef: str = "clef_G"
     
     def init(self):
         self.layout = AutoLayout()
@@ -56,20 +57,10 @@ class StaffDrawer(HasCairoContext):
         self.stroke(config.STAFF_LW)
     
     def draw_clef(self):
-        # Compute scale and position
-        original_height = CLEF_ORIGINAL_HEIGHT
-        target_height = config.STAFF_LINE_HEIGHT * 7.
-        offset = target_height * 1.65 / 7.
-        scale = target_height / original_height
-        x = self.layout.x + config("CLEF_LEFT_MARGIN")
-        y = self.layout.y - target_height + offset + 2*config.STAFF_LINE_HEIGHT
-        
-        # Draw
-        self.ctx.save()
-        self.ctx.translate(x, y)
-        self.ctx.scale(scale, scale)
-        draw_clef(self.ctx)
-        self.ctx.restore()
+        if self.clef == 'clef_G':
+            self.symbolDrawer.draw("clef_G", degree=13, x_offset=self.layout.x +config("CLEF_LEFT_MARGIN"), y_offset=0.15*config.STAFF_LINE_HEIGHT)
+        if self.clef == 'clef_F':
+            self.symbolDrawer.draw("clef_F", degree=8, x_offset=self.layout.x +config("CLEF_LEFT_MARGIN"))
         
     def config_clef_alterations(self, type: str, number: int):
         self.layout.offset_origin_position_base(config("CLEF_ALTERATIONS_SPACE")*number)

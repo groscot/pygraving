@@ -31,9 +31,10 @@ class Score:
     #     else:
     #         self._line_group_types[line_id] = group_type
     
-    def add_scoreline(self, grouped_with: StaffDrawer|None = None) -> StaffDrawer:
+    def add_scoreline(self, clef: str = None, grouped_with: StaffDrawer|None = None) -> StaffDrawer:
         scoreline = StaffDrawer()
         scoreline.init()
+        scoreline.clef = clef or scoreline.clef
         scoreline.SCORE_ID = self.current_id
         self.scorelines.append(scoreline)
         if grouped_with:

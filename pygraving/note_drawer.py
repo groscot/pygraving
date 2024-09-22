@@ -118,13 +118,20 @@ class NoteDrawer(HasParentCairoContext):
         original_height = CURL_ORIGINAL_HEIGHT
         target_height = note.stem_length
         scale = target_height / original_height
-        self.ctx.save()
         
-        self.ctx.translate(x, y)
-        flip_y = 1 if note.up else -1
-        self.ctx.scale(scale, scale*flip_y)
-        draw_curl(self.ctx)
-        self.ctx.restore()
+        num_curls = max(0, note.duration - 2)
+        for i in range(num_curls):
+            self.ctx.save()
+            
+            delta_y = i*config.STAFF_LINE_HEIGHT*0.75
+            scale_decay_x = (i+1) ** 0.25
+            scale_decay_y = (i+1) ** 0.15
+            self.ctx.translate(x, y + delta_y)
+            flip_y = 1 if note.up else -1
+            self.ctx.scale(scale / scale_decay_x, scale * flip_y / scale_decay_y)
+            draw_curl(self.ctx)
+            
+            self.ctx.restore()
     
     def draw_fingering(self, x: float, degree: int, fingering: int, circled: bool):
         if circled:

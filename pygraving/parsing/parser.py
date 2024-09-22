@@ -26,8 +26,9 @@ degree_int.setParseAction(lambda t: int(t[0])-1)
 
 #---
 
-
-
+clef_type = pyparsing.Optional(
+    pyparsing.Combine(pyparsing.Literal("clef_") + (pyparsing.Literal("G") | pyparsing.Literal("F")))
+)
 
 flipped = pyparsing.Optional("!")("flipped")
 
@@ -97,7 +98,7 @@ bar = pyparsing.Literal("||:") | pyparsing.Literal(":||") | pyparsing.Literal("|
     pyparsing.Literal("|:") | pyparsing.Literal(":|") | pyparsing.Literal("|")
 
 commands = [
-    _BEGIN("command") + pyparsing.Word(pyparsing.alphas)("object"),
+    _BEGIN("command") + pyparsing.Word(pyparsing.alphas)("object") + clef_type("clef"),
     _SET("command") + param_with_int_value,
     _CONFIG("config") + param_with_numeric_value,
     _MOVE("command") + pyparsing.Or([python_float, python_int])("amount") + pyparsing.Word(pyparsing.alphas)("direction"),

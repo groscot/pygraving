@@ -182,11 +182,28 @@ function saveToLocalStorage() {
         |
         <input type="button" value="Rest" data-insert="_" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
         <input type="button" value="Lyrics" data-insert='""' class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
-        |
-        <input type="button" value="Chord" onclick="wrapSelection('(', ')')" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
-        <input type="button" value="Group" onclick="wrapSelection('[', ']')" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
-        <input type="button" value="Slur" onclick="wrapSelection('{', '}')" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
         <input type="button" value="Comment" onclick="wrapSelection('\/* ', ' *\/')" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+        |
+        <div class="inline-flex flex-wrap">
+            <div class="flex flex-col items-center">
+                <button type="button" onclick="wrapSelection('(', ')')" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+                    <img src="/static/editor_chord.png" alt="Chord" class="w-8 h-8 object-contain">
+                </button>
+                <span>Chord</span>
+            </div>
+            <div class="flex flex-col items-center">
+                <button type="button" onclick="wrapSelection('[', ']')" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+                    <img src="/static/editor_beam.png" alt="Group" class="w-8 h-8 object-contain">
+                </button>
+                <span>Beam</span>
+            </div>
+            <div class="flex flex-col items-center">
+                <button type="button" onclick="wrapSelection('{', '}')" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+                    <img src="/static/editor_slur.png" alt="Slur" class="w-8 h-8 object-fit">
+                </button>
+                <span>Slur</span>
+            </div>
+        </div>
         <br>
         <span class="inline-flex items-center mr-4 mb-2 text-gray-800 font-semibold">Note</span>
         <div class="inline-flex flex-wrap">

@@ -12,6 +12,7 @@ SYMBOLS_DEFAULT_HEIGHT = 25
 
 SYMBOLS_OTHER_HEIGHT = {
     "clef_F": 20,
+    "clef_G": 1000./7,
 }
 
 BASE_SYMBOLS = \
@@ -42,14 +43,14 @@ class SymbolDrawer(HasParentCairoContext):
         if height:
             self.SYMBOLS_OTHER_HEIGHT[name] = height
     
-    def draw(self, symbol, position: float = None, degree: int = None, x_offset: float = 0):
+    def draw(self, symbol, position: float = None, degree: int = None, x_offset: float = 0, y_offset: float = 0):
         scale = config.STAFF_LINE_HEIGHT/self.SYMBOLS_OTHER_HEIGHT.get(symbol, SYMBOLS_DEFAULT_HEIGHT)
         self.ctx.save()
         
         if x_offset or position or degree:
             x = self.parent.layout.position_to_x(position) if position is not None else 0
             y = self.parent.layout.degree_to_y(degree) if degree is not None else 0
-            self.ctx.translate(x + x_offset, y)
+            self.ctx.translate(x + x_offset, y + y_offset)
         
         self.ctx.scale(scale, scale)
         self.DRAW_SYMBOL[symbol](self.ctx)
