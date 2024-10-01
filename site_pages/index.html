@@ -45,6 +45,9 @@ function insertAtCursor(text) {
     textarea.focus();
     const decodedText = text.replace(/\\n/g, '\n');
     document.execCommand('insertText', false, decodedText);
+
+    hideDropdown('measureBarsDropdown');
+    hideDropdown('timeSignaturesDropdown');
 }
 
 function wrapSelection(before, after) {
@@ -153,30 +156,107 @@ function saveToLocalStorage() {
         alert('Content saved!');
     }
 }
+
+function toggleDropdown(id) {
+    var dropdown = document.getElementById(id);
+    dropdown.classList.toggle('hidden');
+    
+    if (!dropdown.classList.contains('hidden')) {
+        setTimeout(() => {
+            document.addEventListener('click', handleClickOutside);
+            document.addEventListener('keydown', handleEscKey);
+        }, 0);
+    } else {
+        document.removeEventListener('click', handleClickOutside);
+        document.removeEventListener('keydown', handleEscKey);
+    }
+}
+
+function hideDropdown(id) {
+    var dropdown = document.getElementById(id);
+    dropdown.classList.add('hidden');
+    document.removeEventListener('click', handleClickOutside);
+    document.removeEventListener('keydown', handleEscKey);
+}
+
+function handleClickOutside(event) {
+    if (!document.getElementById('measureBarsDropdown').contains(event.target) && !event.target.closest('.keyword-btn')) {
+        hideDropdown('measureBarsDropdown');
+    }
+    if (!document.getElementById('timeSignaturesDropdown').contains(event.target) && !event.target.closest('.keyword-btn')) {
+        hideDropdown('timeSignaturesDropdown');
+    }
+}
+
+function handleEscKey(event) {
+    if (event.key === 'Escape') {
+        hideDropdown('measureBarsDropdown');
+        hideDropdown('timeSignaturesDropdown');
+    }
+}
 </script>
 <div class="">
-<div class="my-0 p-2 border-b sticky top-0 bg-white flex gap-4 justify-between">
-    <form id="insertForm" class="m-0">
+<div class="my-0 p-2 border-b sticky top-0 bg-white flex items-center gap-4 justify-between">
+    <form id="insertForm" class="m-0 z-10">
         <input type="button" value="+ Staff" data-insert="\nBEGIN line\n" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
         <input type="button" value="+ Staff (linked)" data-insert="\nBEGIN grouped\n" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
         |
+        <div class="inline-flex flex-col items-center">
+            <input type="button" value="Time Signatures..." onclick="toggleDropdown('timeSignaturesDropdown')" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+            <div id="timeSignaturesDropdown" class="hidden absolute bg-white border border-gray-400 rounded shadow-lg mt-2">
+                <button type="button" class="block w-full align-center px-4 py-2 text-gray-800 hover:bg-gray-100 keyword-btn" data-insert="\nSIGNATURE C\n">C</button>
+                <button type="button" class="block w-full align-center px-4 py-2 text-gray-800 hover:bg-gray-100 keyword-btn" data-insert="\nSIGNATURE 4 4\n">4/4</button>
+                <button type="button" class="block w-full align-center px-4 py-2 text-gray-800 hover:bg-gray-100 keyword-btn" data-insert="\nSIGNATURE 2 4\n">2/4</button>
+                <button type="button" class="block w-full align-center px-4 py-2 text-gray-800 hover:bg-gray-100 keyword-btn" data-insert="\nSIGNATURE 3 4\n">3/4</button>
+                <button type="button" class="block w-full align-center px-4 py-2 text-gray-800 hover:bg-gray-100 keyword-btn" data-insert="\nSIGNATURE 6 8\n">6/8</button>
+                <button type="button" class="block w-full align-center px-4 py-2 text-gray-800 hover:bg-gray-100 keyword-btn" data-insert="\nSIGNATURE A B /* replace A and B with real values */\n">?/?</button>
+            </div>
+        </div>
+        <div class="inline-flex flex-col items-center">
+            <input type="button" value="Measure Bars..." onclick="toggleDropdown('measureBarsDropdown')" class="keyword-btn bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
+            <div id="measureBarsDropdown" class="hidden absolute bg-white border border-gray-400 rounded shadow-lg mt-2">
+                <button type="button" class="block w-full align-center px-4 py-2 text-gray-800 hover:bg-gray-100 keyword-btn" data-insert=" | ">|</button>
+                <button type="button" class="block w-full align-center px-4 py-2 text-gray-800 hover:bg-gray-100 keyword-btn" data-insert=" || ">||</button>
+                <button type="button" class="block w-full align-center px-4 py-2 text-gray-800 hover:bg-gray-100 keyword-btn" data-insert=" |: ">|:</button>
+                <button type="button" class="block w-full align-center px-4 py-2 text-gray-800 hover:bg-gray-100 keyword-btn" data-insert=" :| ">:|</button>
+                <button type="button" class="block w-full align-center px-4 py-2 text-gray-800 hover:bg-gray-100 keyword-btn" data-insert=" [| ">[|</button>
+                <button type="button" class="block w-full align-center px-4 py-2 text-gray-800 hover:bg-gray-100 keyword-btn" data-insert=" |] ">|]</button>
+                <button type="button" class="block w-full align-center px-4 py-2 text-gray-800 hover:bg-gray-100 keyword-btn" data-insert=" [|: ">[|:</button>
+                <button type="button" class="block w-full align-center px-4 py-2 text-gray-800 hover:bg-gray-100 keyword-btn" data-insert=" :|] ">:|]</button>
+            </div>
+        </div>
+        |
         <span class="inline-flex items-center ml-4 mr-2">Active Duration</span>
-        <div class="inline-flex flex-wrap">
-            <label class="inline-flex items-center m-0 cursor-pointer">
-                <input type="radio" name="duration" value="#" class="hidden peer duration-btn" data-insert="SET duration 0\n">
-                <span class="px-2 py-1 text-sm border-r border-gray-400 rounded-l-md bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Whole Note</span>
+        <div class="inline-flex align-middle flex-wrap">
+            <label class="m-0 cursor-pointer">
+                <input type="radio" name="duration" class="hidden peer duration-btn" data-insert="SET duration 0\n">
+                <div class="py-1 px-0 text-sm border-r border-gray-400 rounded-l-md bg-gray-200 peer-checked:bg-blue-500">
+                    <img src="/static/editor_0.png" alt="Whole Note" class="w-6 h-8 object-contain">
+                </div>
             </label>
-            <label class="inline-flex items-center m-0 cursor-pointer">
-                <input type="radio" name="duration" value="b" class="hidden peer duration-btn" data-insert="SET duration 1\n">
-                <span class="px-2 py-1 text-sm border-r border-gray-400 bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Half Note</span>
+            <label class="m-0 cursor-pointer">
+                <input type="radio" name="duration" class="hidden peer duration-btn" data-insert="SET duration 1\n">
+                <div class="py-1 px-0 text-sm border-r border-gray-400 bg-gray-200 peer-checked:bg-blue-500">
+                    <img src="/static/editor_1.png" alt="Half Note" class="w-6 h-8 object-contain">
+                </div>
             </label>
-            <label class="inline-flex items-center m-0 cursor-pointer">
-                <input type="radio" name="duration" value="b" class="hidden peer duration-btn" data-insert="SET duration 2\n" checked="checked">
-                <span class="px-2 py-1 text-sm border-r border-gray-400 bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Quarter Note</span>
+            <label class="m-0 cursor-pointer">
+                <input type="radio" name="duration" class="hidden peer duration-btn" data-insert="SET duration 2\n" checked="checked">
+                <div class="py-1 px-0 text-sm border-r border-gray-400 bg-gray-200 peer-checked:bg-blue-500">
+                    <img src="/static/editor_2.png" alt="Quarter Note" class="w-6 h-8 object-contain">
+                </div>
             </label>
-            <label class="inline-flex items-center m-0 cursor-pointer">
-                <input type="radio" name="duration" value="n" class="hidden peer duration-btn" data-insert="SET duration 3\n">
-                <span class="px-2 py-1 text-sm rounded-r-md bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Eighth Note</span>
+            <label class="m-0 cursor-pointer">
+                <input type="radio" name="duration" class="hidden peer duration-btn" data-insert="SET duration 3\n">
+                <div class="py-1 px-0 text-sm border-r border-gray-400 bg-gray-200 peer-checked:bg-blue-500">
+                    <img src="/static/editor_3.png" alt="Eighth Note" class="w-6 h-8 object-contain">
+                </div>
+            </label>
+            <label class="m-0 cursor-pointer">
+                <input type="radio" name="duration" class="hidden peer duration-btn" data-insert="SET duration 4\n">
+                <div class="py-1 px-0 text-sm rounded-r-md bg-gray-200 peer-checked:bg-blue-500">
+                    <img src="/static/editor_4.png" alt="Sixteenth Note" class="w-6 h-8 object-contain">
+                </div>
             </label>
         </div>
         |
@@ -187,44 +267,50 @@ function saveToLocalStorage() {
         <div class="inline-flex flex-wrap">
             <div class="flex flex-col items-center">
                 <button type="button" onclick="wrapSelection('(', ')')" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
-                    <img src="/static/editor_chord.png" alt="Chord" class="w-8 h-8 object-contain">
+                    <img src="/static/editor_chord.png" alt="Chord" class="w-6 h-6 object-contain">
                 </button>
                 <span>Chord</span>
             </div>
             <div class="flex flex-col items-center">
                 <button type="button" onclick="wrapSelection('[', ']')" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
-                    <img src="/static/editor_beam.png" alt="Group" class="w-8 h-8 object-contain">
+                    <img src="/static/editor_beam.png" alt="Group" class="w-6 h-6 object-contain">
                 </button>
                 <span>Beam</span>
             </div>
             <div class="flex flex-col items-center">
                 <button type="button" onclick="wrapSelection('{', '}')" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded m-1">
-                    <img src="/static/editor_slur.png" alt="Slur" class="w-8 h-8 object-fit">
+                    <img src="/static/editor_slur.png" alt="Slur" class="w-6 h-6 object-fit">
                 </button>
                 <span>Slur</span>
             </div>
         </div>
         <br>
-        <span class="inline-flex items-center mr-4 mb-2 text-gray-800 font-semibold">Note</span>
-        <div class="inline-flex flex-wrap">
+        <span class="inline-flex align-middle mr-4 text-gray-800 font-semibold">Note</span>
+        <div class="inline-flex align-middle flex-wrap">
             <input type="radio" name="modifier" value="" id="modifier-normal" class="hidden" checked="checked">
-            <label class="inline-flex items-center m-0 cursor-pointer">
+            <label class="inline-flex m-0 cursor-pointer">
                 <input type="radio" name="modifier" value="#" class="hidden peer">
-                <span class="px-2 py-1 text-sm border-r border-gray-400 rounded-l-md bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Sharp #</span>
+                <span class="py-1 px-0 text-sm border-r border-gray-400 rounded-l-md bg-gray-200 peer-checked:bg-blue-500">
+                    <img src="/static/editor_sharp.png" title="Sharp" class="w-6 h-6 object-contain">
+                </span>
             </label>
-            <label class="inline-flex items-center m-0 cursor-pointer">
+            <label class="inline-flex m-0 cursor-pointer">
                 <input type="radio" name="modifier" value="b" class="hidden peer">
-                <span class="px-2 py-1 text-sm border-r border-gray-400 bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Flat b</span>
+                <span class="py-1 px-0 text-sm border-r border-gray-400 bg-gray-200 peer-checked:bg-blue-500">
+                    <img src="/static/editor_flat.png" title="Flat" class="w-6 h-6 object-contain">
+                </span>
             </label>
-            <label class="inline-flex items-center m-0 cursor-pointer">
+            <label class="inline-flex m-0 cursor-pointer">
                 <input type="radio" name="modifier" value="n" class="hidden peer">
-                <span class="px-2 py-1 text-sm rounded-r-md bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Natural</span>
+                <span class="py-1 px-0 text-sm rounded-r-md bg-gray-200 peer-checked:bg-blue-500">
+                    <img src="/static/editor_natural.png" title="Natural" class="w-6 h-6 object-contain">
+                </span>
             </label>
-        </div>
-        <div class="inline-flex flex-wrap">
-            <label class="inline-flex items-center m-0 cursor-pointer">
+            <label class="inline-flex m-0 ml-2 cursor-pointer">
                 <input type="checkbox" name="inverted" class="hidden peer">
-                <span class="px-2 py-1 text-sm rounded-md bg-gray-200 text-gray-700 peer-checked:bg-blue-500 peer-checked:text-white">Inverted</span>
+                <span class="py-1 px-0 text-sm rounded-md bg-gray-200 peer-checked:bg-blue-500">
+                    <img src="/static/editor_down.png" title="Inverted" class="w-6 h-6 object-contain">
+                </span>
             </label>
         </div>
         <div class="inline-flex flex-wrap">
